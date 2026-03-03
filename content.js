@@ -7,15 +7,11 @@
 (function () {
   const ICON_ID = "sf-record-linker-icon";
 
-  // レコード名を保持する要素のセレクタ（暫定。HTMLサンプル確認後に調整）
+  // レコード名を保持する要素のセレクタ（HTMLサンプル解析済み）
   const RECORD_NAME_SELECTORS = [
-    // Lightning レコードページのヘッダータイトル
-    'records-entity-label[class*="slds-record-header"] lightning-formatted-text',
-    'h1.slds-page-header__title lightning-formatted-text',
-    'slot[name="primaryField"] lightning-formatted-text',
-    'records-highlights-details-item:first-child lightning-formatted-text',
-    // フォールバック
-    'h1 lightning-formatted-text',
+    'records-highlights2 slot[name="primaryField"] lightning-formatted-text',
+    'records-highlights2 h1 lightning-formatted-text[slot="primaryField"]',
+    'records-highlights2 h1 lightning-formatted-text',
   ];
 
   /**
@@ -125,8 +121,14 @@
     const nameEl = findRecordNameElement();
     if (!nameEl) return;
 
+    // primaryField の slot 要素の直後（h1 内末尾付近）に挿入
+    const primaryFieldSlot = document.querySelector(
+      'records-highlights2 slot[name="primaryField"]'
+    );
+    const insertTarget = primaryFieldSlot || nameEl;
+
     const icon = createCopyIcon();
-    nameEl.parentElement.insertBefore(icon, nameEl.nextSibling);
+    insertTarget.after(icon);
   }
 
   /**
