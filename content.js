@@ -121,14 +121,9 @@
     const nameEl = findRecordNameElement();
     if (!nameEl) return;
 
-    // primaryField の slot 要素の直前（レコード名の左隣）に挿入
-    const primaryFieldSlot = document.querySelector(
-      'records-highlights2 slot[name="primaryField"]'
-    );
-    const insertTarget = primaryFieldSlot || nameEl;
-
+    // レコード名 (lightning-formatted-text) の直前に挿入して左隣に配置
     const icon = createCopyIcon();
-    insertTarget.before(icon);
+    nameEl.before(icon);
   }
 
   /**
