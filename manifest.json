@@ -12,6 +12,7 @@
     "clipboardWrite",
     "storage"
   ],
+  "options_page": "options.html",
   "content_scripts": [
     {
       "matches": ["*://*.lightning.force.com/*"],

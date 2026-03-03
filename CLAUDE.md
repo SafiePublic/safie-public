@@ -1,44 +1,32 @@
 # SF Record Linker
 
-Salesforce Lightning レコードページ用 Chrome 拡張機能。レコードへのリンクをワンクリックでクリップボードにコピーする。
+Salesforce Lightning レコードページのリンクをワンクリックでコピーする Chrome 拡張機能。
 
-## プロジェクト構成
+## Key Files
 
-```
-sf-record-linker/
-├── manifest.json              # Chrome Extension Manifest V3
-├── content.js                 # Content Script（DOM操作・UI挿入）
-├── lib/
-│   └── link-formatter.js      # リンク生成ロジック（フォーマット分離）
-├── options.html               # 設定画面（Phase 2）
-├── options.js                 # 設定画面ロジック（Phase 2）
-├── icons/
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-└── .gitignore
-```
+- `content.js` — エントリポイント。DOMからレコード名を検出しコピーアイコンを挿入。MutationObserverでSPAナビゲーション対応
+- `lib/link-formatter.js` — content.js より先に読み込まれるグローバル関数群（`formatBasicLink`, `formatExtendedLink`, `escapeHtml`）
+- `options.js` — `chrome.storage.sync` でオブジェクトごとの拡張表示設定を管理
 
-## 技術スタック
+## Commands
 
-- Chrome Extension Manifest V3
-- Content Script（Salesforce Lightning ページで動作）
-- Clipboard API (`navigator.clipboard.write()`) — text/html + text/plain 両方をセット
-- MutationObserver — SPA ページ遷移検知・再挿入
-- chrome.storage.sync — 設定保存（Phase 2以降）
+| Command | Description |
+|---------|-------------|
+| `npm install` | 依存パッケージをインストール |
+| `npm test` | Vitest でテスト実行 |
 
 ## 開発ルール
 
-- 個人利用ツールのためテストフレームワークは不使用
+- パブリック公開予定のツール。機能追加・変更時はテストを書く
+- テストフレームワーク: Vitest
 - `chrome://extensions/` →「パッケージ化されていない拡張機能を読み込む」で動作確認
-- レコード名の DOM セレクタはユーザー提供の HTML サンプルで確定する（暫定セレクタで実装開始）
+- DOMセレクタの変更時は `sample.html` で検証してから反映
+- `lib/link-formatter.js` の関数はグローバルスコープ（manifest.json の js 配列順で content.js より先にロード）
 
-## フェーズ構成
+## Gotchas
 
-- **Phase 1**: 基本機能（レコード名検出、コピーアイコン、クリップボード）
-- **Phase 2**: 拡張形式（オブジェクトごとの項目追加、設定画面）
-- **Phase 3**: カスタムフォーマット（テンプレート変数、複数項目、プレビュー）
-
-## 実装計画
-
-詳細な実装計画: `~/.claude/projects/-Users-s-kikuchi-GitHub-sf-record-linker/memory/implementation-plan.md`
+- レコード名の取得には複数のフォールバックセレクタが必要（`records-highlights2` 配下の `lightning-formatted-text`、Shadow DOM ではないが構造がバージョンで変わりうる）
+- オブジェクトAPI名は `[data-target-selection-name^='sfdc:RecordField.']` から正規表現で抽出（例: `sfdc:RecordField.PartsProduct__c.Name` → `partsproduct__c`）
+- フィールド値は `records-record-layout-item[field-label="..."]` → `[data-output-element-id='output-field']` の順で探索。Lookup項目は `force-lookup a[data-navigation='enable']` から取得
+- Clipboard API は `text/html`（リッチテキスト貼り付け用）と `text/plain`（レコード名のみ）を同時にセット
+- MutationObserver は URL変更検知 + アイコン消失検知の2重チェック（Lightning SPAはDOM再構築が頻繁）
