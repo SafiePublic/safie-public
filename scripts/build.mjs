@@ -18,29 +18,21 @@ const commonOptions = {
   target: "chrome120",
 };
 
+const entries = [
+  { entryPoints: ["src/content.ts"], outfile: "dist/content.js" },
+  { entryPoints: ["src/options.ts"], outfile: "dist/options.js" },
+  { entryPoints: ["src/background.ts"], outfile: "dist/background.js" },
+];
+
 if (isWatch) {
-  const ctx1 = await esbuild.context({
-    ...commonOptions,
-    entryPoints: ["src/content.ts"],
-    outfile: "dist/content.js",
-  });
-  const ctx2 = await esbuild.context({
-    ...commonOptions,
-    entryPoints: ["src/options.ts"],
-    outfile: "dist/options.js",
-  });
-  await Promise.all([ctx1.watch(), ctx2.watch()]);
+  const contexts = await Promise.all(
+    entries.map((entry) => esbuild.context({ ...commonOptions, ...entry })),
+  );
+  await Promise.all(contexts.map((ctx) => ctx.watch()));
   console.log("Watching for changes...");
 } else {
-  await esbuild.build({
-    ...commonOptions,
-    entryPoints: ["src/content.ts"],
-    outfile: "dist/content.js",
-  });
-  await esbuild.build({
-    ...commonOptions,
-    entryPoints: ["src/options.ts"],
-    outfile: "dist/options.js",
-  });
+  await Promise.all(
+    entries.map((entry) => esbuild.build({ ...commonOptions, ...entry })),
+  );
   console.log("Build complete");
 }

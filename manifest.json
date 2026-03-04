@@ -8,9 +8,15 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
+  "action": {},
+  "background": {
+    "service_worker": "background.js"
+  },
   "permissions": [
     "clipboardWrite",
-    "storage"
+    "storage",
+    "activeTab",
+    "declarativeContent"
   ],
   "options_page": "options.html",
   "content_scripts": [
