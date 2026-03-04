@@ -1,4 +1,9 @@
-import { formatBasicLink, formatExtendedLink } from "./lib/link-formatter";
+import {
+  formatBasicLink,
+  formatExtendedLink,
+  formatTemplateLink,
+  extractFieldLabels,
+} from "./lib/link-formatter";
 import type { ObjectSettings } from "./lib/types";
 
 function querySelectorInShadowDOM(
@@ -82,7 +87,29 @@ function buildLink(
     const objectLabel = getObjectLabel(startEl);
     const setting = objectLabel ? cachedSettings[objectLabel] : undefined;
 
-    if (setting?.enabled && setting.fieldLabel) {
+    if (!setting?.enabled) return formatBasicLink(recordName, url);
+
+    const mode = setting.mode ?? 'simple';
+
+    if (mode === 'custom' && setting.format) {
+      const labels = extractFieldLabels(setting.format);
+      const fieldValues: Record<string, string> = {};
+      for (const label of labels) {
+        const val = getFieldValue(startEl, label);
+        if (!val) return formatBasicLink(recordName, url);
+        fieldValues[label] = val;
+      }
+      return formatTemplateLink(
+        recordName,
+        url,
+        setting.format,
+        fieldValues,
+        objectLabel ?? '',
+        setting.alias ?? '',
+      );
+    }
+
+    if (setting.fieldLabel) {
       const fieldValue = getFieldValue(startEl, setting.fieldLabel);
       if (fieldValue) {
         return formatExtendedLink(
@@ -106,7 +133,7 @@ function isRecordPage(): boolean {
   return /\/lightning\/r\/[^/]+\/[^/]+\/view/.test(window.location.pathname);
 }
 
-async function copyRecordLink(): Promise<{ success: boolean }> {
+function getRecordLink(): { success: boolean; html?: string; plain?: string } {
   if (!isRecordPage()) return { success: false };
 
   const startEl =
@@ -118,7 +145,13 @@ async function copyRecordLink(): Promise<{ success: boolean }> {
   const recordName = nameEl.innerText.trim();
   const url = window.location.href;
   const { html, plain } = buildLink(recordName, url, startEl);
+  return { success: true, html, plain };
+}
 
+async function copyToClipboard(
+  html: string,
+  plain: string,
+): Promise<{ success: boolean }> {
   try {
     const clipboardItem = new ClipboardItem({
       "text/html": new Blob([html], { type: "text/html" }),
@@ -133,9 +166,13 @@ async function copyRecordLink(): Promise<{ success: boolean }> {
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.action === "copyRecordLink") {
-    copyRecordLink().then(sendResponse);
-    return true; // 非同期レスポンスのためtrueを返す
+  if (message.action === "getRecordLink") {
+    sendResponse(getRecordLink());
+    return false;
+  }
+  if (message.action === "copyToClipboard") {
+    copyToClipboard(message.html, message.plain).then(sendResponse);
+    return true;
   }
 });
 

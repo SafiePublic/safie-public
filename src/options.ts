@@ -1,4 +1,13 @@
-import type { ObjectSettings } from "./lib/types";
+import type { ObjectSetting, ObjectSettings } from "./lib/types";
+
+interface CardParams {
+  objectName?: string;
+  mode?: 'simple' | 'custom';
+  fieldLabel?: string;
+  showLabel?: boolean;
+  format?: string;
+  alias?: string;
+}
 
 class SettingsManager {
   #container: HTMLElement;
@@ -38,9 +47,15 @@ class SettingsManager {
 
     this.#container.addEventListener("click", (e) => {
       const target = e.target as HTMLElement;
-      if (!target.classList.contains("btn-remove")) return;
-      const card = target.closest(".card") as HTMLElement | null;
-      if (card) this.#removeCard(card);
+      if (target.classList.contains("btn-remove")) {
+        const card = target.closest(".card") as HTMLElement | null;
+        if (card) this.#removeCard(card);
+        return;
+      }
+      if (target.classList.contains("segment-btn")) {
+        const card = target.closest(".card") as HTMLElement | null;
+        if (card) this.#switchMode(card, target);
+      }
     });
 
     this.#load();
@@ -51,7 +66,14 @@ class SettingsManager {
       const settings = result.objectSettings as ObjectSettings;
       for (const [key, val] of Object.entries(settings)) {
         if (val.enabled) {
-          this.#addCard(key, val.fieldLabel, val.showLabel);
+          this.#addCard({
+            objectName: key,
+            mode: val.mode ?? 'simple',
+            fieldLabel: val.fieldLabel,
+            showLabel: val.showLabel,
+            format: val.format,
+            alias: val.alias,
+          });
         }
       }
     });
@@ -67,17 +89,27 @@ class SettingsManager {
       const objectName = (
         card.querySelector(".input-object") as HTMLInputElement
       ).value.trim();
+      const mode = this.#getMode(card as HTMLElement);
       const fieldLabel = (
         card.querySelector(".input-label") as HTMLInputElement
       ).value.trim();
       const showLabel = (
         card.querySelector(".toggle-input") as HTMLInputElement
       ).checked;
+      const format = (
+        card.querySelector(".input-format") as HTMLInputElement
+      ).value.trim();
+      const alias = (
+        card.querySelector(".input-shortname") as HTMLInputElement
+      ).value.trim();
 
       objectSettings[objectName] = {
         enabled: true,
+        mode,
         fieldLabel,
         showLabel,
+        format,
+        alias,
       };
     });
 
@@ -95,21 +127,33 @@ class SettingsManager {
       const objectInput = card.querySelector(
         ".input-object",
       ) as HTMLInputElement;
-      const labelInput = card.querySelector(
-        ".input-label",
-      ) as HTMLInputElement;
       const objectName = objectInput.value.trim();
-      const fieldLabel = labelInput.value.trim();
+      const mode = this.#getMode(card as HTMLElement);
 
       if (!objectName) {
         objectInput.classList.add("error");
         card.classList.add("error");
         valid = false;
       }
-      if (!fieldLabel) {
-        labelInput.classList.add("error");
-        card.classList.add("error");
-        valid = false;
+
+      if (mode === 'simple') {
+        const labelInput = card.querySelector(
+          ".input-label",
+        ) as HTMLInputElement;
+        if (!labelInput.value.trim()) {
+          labelInput.classList.add("error");
+          card.classList.add("error");
+          valid = false;
+        }
+      } else {
+        const formatInput = card.querySelector(
+          ".input-format",
+        ) as HTMLInputElement;
+        if (!formatInput.value.trim()) {
+          formatInput.classList.add("error");
+          card.classList.add("error");
+          valid = false;
+        }
       }
 
       if (objectName && seen.has(objectName)) {
@@ -128,7 +172,16 @@ class SettingsManager {
     return valid;
   }
 
-  #addCard(objectName = "", fieldLabel = "", showLabel = true): void {
+  #addCard(params: CardParams = {}): void {
+    const {
+      objectName = "",
+      mode = "simple",
+      fieldLabel = "",
+      showLabel = true,
+      format = "",
+      alias = "",
+    } = params;
+
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
@@ -145,18 +198,45 @@ class SettingsManager {
       </div>
 
       <div class="field-group">
-        <label>項目ラベル名</label>
-        <input type="text" class="input-field input-label"
-               value="${this.#escapeAttr(fieldLabel)}"
-               placeholder="例: 商品コード">
+        <label>オブジェクト名(別名)（任意）</label>
+        <input type="text" class="input-field input-shortname"
+               value="${this.#escapeAttr(alias)}"
+               placeholder="例: 商">
       </div>
 
-      <div class="toggle-row">
-        <span class="toggle-label">ラベルを表示する</span>
-        <label class="toggle">
-          <input type="checkbox" class="toggle-input" ${showLabel ? "checked" : ""}>
-          <span class="toggle-track"></span>
-        </label>
+      <div class="segment-control">
+        <button type="button" class="segment-btn${mode === 'simple' ? ' active' : ''}" data-mode="simple">簡易設定</button>
+        <button type="button" class="segment-btn${mode === 'custom' ? ' active' : ''}" data-mode="custom">カスタム設定</button>
+      </div>
+
+      <div class="mode-section mode-simple${mode === 'simple' ? ' visible' : ''}">
+        <div class="field-group">
+          <label>項目ラベル名</label>
+          <input type="text" class="input-field input-label"
+                 value="${this.#escapeAttr(fieldLabel)}"
+                 placeholder="例: 商品コード">
+        </div>
+
+        <div class="toggle-row">
+          <span class="toggle-label">項目ラベル名を表示する</span>
+          <label class="toggle">
+            <input type="checkbox" class="toggle-input" ${showLabel ? "checked" : ""}>
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="mode-section mode-custom${mode === 'custom' ? ' visible' : ''}">
+        <div class="field-group">
+          <label>フォーマット</label>
+          <input type="text" class="input-field input-format"
+                 value="${this.#escapeAttr(format)}"
+                 placeholder="例: \${name}(\${商品コード})">
+          <div class="help-text">
+            <code>\${name}</code> レコード名 / <code>\${object}</code> オブジェクト名 / <code>\${alias}</code> 別名<br>
+            <code>\${項目ラベル名}</code> で任意の項目値を参照できます
+          </div>
+        </div>
       </div>
 
       <div class="preview">
@@ -173,16 +253,49 @@ class SettingsManager {
     card.remove();
   }
 
+  #switchMode(card: HTMLElement, btn: HTMLElement): void {
+    const mode = btn.dataset.mode as 'simple' | 'custom';
+    card.querySelectorAll(".segment-btn").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const simpleSection = card.querySelector(".mode-simple")!;
+    const customSection = card.querySelector(".mode-custom")!;
+    simpleSection.classList.toggle("visible", mode === "simple");
+    customSection.classList.toggle("visible", mode === "custom");
+
+    this.#updatePreview(card);
+  }
+
+  #getMode(card: HTMLElement): 'simple' | 'custom' {
+    const activeBtn = card.querySelector(".segment-btn.active") as HTMLElement | null;
+    return (activeBtn?.dataset.mode as 'simple' | 'custom') ?? 'simple';
+  }
+
   #updatePreview(card: HTMLElement): void {
-    const label =
-      (card.querySelector(".input-label") as HTMLInputElement).value.trim() ||
-      "ラベル";
-    const showLabel = (
-      card.querySelector(".toggle-input") as HTMLInputElement
-    ).checked;
-    const text = showLabel
-      ? `レコード名(${label}:値)`
-      : `レコード名(値)`;
+    const mode = this.#getMode(card);
+    const objectName = (card.querySelector(".input-object") as HTMLInputElement).value.trim() || "オブジェクト名";
+    const alias = (card.querySelector(".input-shortname") as HTMLInputElement).value.trim() || "別名";
+
+    let text: string;
+
+    if (mode === 'custom') {
+      const format = (card.querySelector(".input-format") as HTMLInputElement).value.trim();
+      if (!format) {
+        text = "レコード名";
+      } else {
+        text = format.replace(/\$\{([^}]+)\}/g, (_, key: string) => {
+          if (key === 'name') return 'レコード名';
+          if (key === 'object') return objectName;
+          if (key === 'alias') return alias;
+          return `[${key}]`;
+        });
+      }
+    } else {
+      const label = (card.querySelector(".input-label") as HTMLInputElement).value.trim() || "ラベル";
+      const showLabel = (card.querySelector(".toggle-input") as HTMLInputElement).checked;
+      text = showLabel ? `レコード名(${label}:値)` : `レコード名(値)`;
+    }
+
     card.querySelector(".preview-text")!.textContent = text;
   }
 
