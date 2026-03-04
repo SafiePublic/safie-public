@@ -1,30 +1,35 @@
-/**
- * SF Record Linker — 設定画面ロジック
- * クラスベース設計、event delegation、リアルタイムプレビュー
- */
+interface ObjectSettingValue {
+  enabled: boolean;
+  fieldLabel: string;
+  showLabel: boolean;
+}
+
+interface ObjectSettings {
+  [key: string]: ObjectSettingValue;
+}
+
 class SettingsManager {
-  #container;
-  #btnAdd;
-  #btnSave;
-  #toastEl;
-  #toastTimer;
+  #container: HTMLElement;
+  #btnAdd: HTMLElement;
+  #btnSave: HTMLElement;
+  #toastEl: HTMLElement;
+  #toastTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
-    this.#container = document.getElementById("cards");
-    this.#btnAdd = document.getElementById("btn-add");
-    this.#btnSave = document.getElementById("btn-save");
-    this.#toastEl = document.getElementById("toast");
+    this.#container = document.getElementById("cards")!;
+    this.#btnAdd = document.getElementById("btn-add")!;
+    this.#btnSave = document.getElementById("btn-save")!;
+    this.#toastEl = document.getElementById("toast")!;
 
     this.#btnAdd.addEventListener("click", () => this.#addCard());
     this.#btnSave.addEventListener("click", () => this.#save());
 
-    // event delegation: input / change / click をコンテナで一括処理
     this.#container.addEventListener("input", (e) => {
-      const card = e.target.closest(".card");
+      const target = e.target as HTMLElement;
+      const card = target.closest(".card") as HTMLElement | null;
       if (!card) return;
-      // エラー状態をクリア
-      if (e.target.classList.contains("input-field")) {
-        e.target.classList.remove("error");
+      if (target.classList.contains("input-field")) {
+        target.classList.remove("error");
       }
       if (card.classList.contains("error")) {
         card.classList.remove("error");
@@ -33,23 +38,25 @@ class SettingsManager {
     });
 
     this.#container.addEventListener("change", (e) => {
-      if (!e.target.classList.contains("toggle-input")) return;
-      const card = e.target.closest(".card");
+      const target = e.target as HTMLElement;
+      if (!target.classList.contains("toggle-input")) return;
+      const card = target.closest(".card") as HTMLElement | null;
       if (card) this.#updatePreview(card);
     });
 
     this.#container.addEventListener("click", (e) => {
-      if (!e.target.classList.contains("btn-remove")) return;
-      const card = e.target.closest(".card");
+      const target = e.target as HTMLElement;
+      if (!target.classList.contains("btn-remove")) return;
+      const card = target.closest(".card") as HTMLElement | null;
       if (card) this.#removeCard(card);
     });
 
     this.#load();
   }
 
-  #load() {
+  #load(): void {
     chrome.storage.sync.get({ objectSettings: {} }, (result) => {
-      const settings = result.objectSettings;
+      const settings = result.objectSettings as ObjectSettings;
       for (const [key, val] of Object.entries(settings)) {
         if (val.enabled) {
           this.#addCard(key, val.fieldLabel, val.showLabel);
@@ -58,16 +65,22 @@ class SettingsManager {
     });
   }
 
-  #save() {
+  #save(): void {
     if (!this.#validate()) return;
 
     const cards = this.#container.querySelectorAll(".card");
-    const objectSettings = {};
+    const objectSettings: ObjectSettings = {};
 
     cards.forEach((card) => {
-      const objectName = card.querySelector(".input-object").value.trim();
-      const fieldLabel = card.querySelector(".input-label").value.trim();
-      const showLabel = card.querySelector(".toggle-input").checked;
+      const objectName = (
+        card.querySelector(".input-object") as HTMLInputElement
+      ).value.trim();
+      const fieldLabel = (
+        card.querySelector(".input-label") as HTMLInputElement
+      ).value.trim();
+      const showLabel = (
+        card.querySelector(".toggle-input") as HTMLInputElement
+      ).checked;
 
       objectSettings[objectName] = {
         enabled: true,
@@ -81,18 +94,21 @@ class SettingsManager {
     });
   }
 
-  #validate() {
+  #validate(): boolean {
     const cards = this.#container.querySelectorAll(".card");
     let valid = true;
-    const seen = new Set();
+    const seen = new Set<string>();
 
     cards.forEach((card) => {
-      const objectInput = card.querySelector(".input-object");
-      const labelInput = card.querySelector(".input-label");
+      const objectInput = card.querySelector(
+        ".input-object",
+      ) as HTMLInputElement;
+      const labelInput = card.querySelector(
+        ".input-label",
+      ) as HTMLInputElement;
       const objectName = objectInput.value.trim();
       const fieldLabel = labelInput.value.trim();
 
-      // 空欄チェック
       if (!objectName) {
         objectInput.classList.add("error");
         card.classList.add("error");
@@ -104,7 +120,6 @@ class SettingsManager {
         valid = false;
       }
 
-      // 重複チェック
       if (objectName && seen.has(objectName)) {
         objectInput.classList.add("error");
         card.classList.add("error");
@@ -121,7 +136,7 @@ class SettingsManager {
     return valid;
   }
 
-  #addCard(objectName = "", fieldLabel = "", showLabel = true) {
+  #addCard(objectName = "", fieldLabel = "", showLabel = true): void {
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
@@ -162,18 +177,24 @@ class SettingsManager {
     this.#updatePreview(card);
   }
 
-  #removeCard(card) {
+  #removeCard(card: HTMLElement): void {
     card.remove();
   }
 
-  #updatePreview(card) {
-    const label = card.querySelector(".input-label").value.trim() || "ラベル";
-    const showLabel = card.querySelector(".toggle-input").checked;
-    const text = showLabel ? `レコード名(${label}:値)` : `レコード名(値)`;
-    card.querySelector(".preview-text").textContent = text;
+  #updatePreview(card: HTMLElement): void {
+    const label =
+      (card.querySelector(".input-label") as HTMLInputElement).value.trim() ||
+      "ラベル";
+    const showLabel = (
+      card.querySelector(".toggle-input") as HTMLInputElement
+    ).checked;
+    const text = showLabel
+      ? `レコード名(${label}:値)`
+      : `レコード名(値)`;
+    card.querySelector(".preview-text")!.textContent = text;
   }
 
-  #showToast(msg) {
+  #showToast(msg: string): void {
     clearTimeout(this.#toastTimer);
     this.#toastEl.textContent = msg;
     this.#toastEl.classList.add("visible");
@@ -182,7 +203,7 @@ class SettingsManager {
     }, 2000);
   }
 
-  #escapeAttr(str) {
+  #escapeAttr(str: string): string {
     return str.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
   }
 }
