@@ -24,6 +24,8 @@ Salesforce Lightning レコードページ用 Chrome 拡張機能。レコード
 
 拡張機能の設定画面（右クリック →「オプション」）でオブジェクトごとにコピー形式をカスタマイズできる。
 
+![オプション画面](docs/screenshots/store-screenshot-options.png)
+
 **簡易設定**: 項目を1つ指定して付加する。
 
 | 設定 | コピー結果 |
