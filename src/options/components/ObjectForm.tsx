@@ -1,4 +1,5 @@
 import type { CardState, ValidationError } from "../../lib/types";
+import { t } from "../../lib/i18n";
 import { SegmentControl } from "./SegmentControl";
 import { Toggle } from "./Toggle";
 import { Preview } from "./Preview";
@@ -22,12 +23,12 @@ export function ObjectForm({ card, errors, linkNameOnly, showObjectName, onChang
   return (
     <>
       <div class="field-group">
-        <label>オブジェクト名</label>
+        <label>{t("options_form_label_objectName")}</label>
         <input
           type="text"
           class={`input-field${fieldError("objectName") ? " error" : ""}`}
           value={card.objectName}
-          placeholder="例: 商品"
+          placeholder={t("options_form_placeholder_objectName")}
           onInput={(e) => update({ objectName: (e.target as HTMLInputElement).value })}
         />
       </div>
@@ -36,18 +37,18 @@ export function ObjectForm({ card, errors, linkNameOnly, showObjectName, onChang
 
       <div class={`mode-section${card.mode === "simple" ? " visible" : ""}`}>
         <div class="field-group">
-          <label>項目ラベル名</label>
+          <label>{t("options_form_label_fieldLabel")}</label>
           <input
             type="text"
             class={`input-field${fieldError("fieldLabel") ? " error" : ""}`}
             value={card.fieldLabel}
-            placeholder="例: 商品コード"
+            placeholder={t("options_form_placeholder_fieldLabel")}
             onInput={(e) => update({ fieldLabel: (e.target as HTMLInputElement).value })}
           />
         </div>
 
         <Toggle
-          label="項目ラベル名を出力する"
+          label={t("options_form_toggle_showLabel")}
           checked={card.showLabel}
           onChange={(showLabel) => update({ showLabel })}
         />
@@ -55,18 +56,18 @@ export function ObjectForm({ card, errors, linkNameOnly, showObjectName, onChang
 
       <div class={`mode-section${card.mode === "custom" ? " visible" : ""}`}>
         <div class="field-group">
-          <label>フォーマット</label>
+          <label>{t("options_form_label_format")}</label>
           <input
             type="text"
             class={`input-field${fieldError("format") ? " error" : ""}`}
             value={card.format}
-            placeholder="例: ${name}(${商品コード})"
+            placeholder={t("options_form_placeholder_format")}
             onInput={(e) => update({ format: (e.target as HTMLInputElement).value })}
           />
           <div class="help-text">
-            <code>{"${name}"}</code> レコード名 / <code>{"${object}"}</code> オブジェクト名
+            <code>{"${name}"}</code> {t("options_form_help_nameVar")} / <code>{"${object}"}</code> {t("options_form_help_objectVar")}
             <br />
-            <code>{"${項目ラベル名}"}</code> で任意の項目値を参照できます
+            <code>{t("options_form_help_fieldVarExample")}</code> {t("options_form_help_fieldVar")}
           </div>
         </div>
       </div>

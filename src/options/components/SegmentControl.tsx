@@ -1,3 +1,5 @@
+import { t } from "../../lib/i18n";
+
 interface SegmentControlProps {
   mode: "simple" | "custom";
   onChange: (mode: "simple" | "custom") => void;
@@ -11,14 +13,14 @@ export function SegmentControl({ mode, onChange }: SegmentControlProps) {
         class={`segment-btn${mode === "simple" ? " active" : ""}`}
         onClick={() => onChange("simple")}
       >
-        簡易フォーマット
+        {t("options_segment_simple")}
       </button>
       <button
         type="button"
         class={`segment-btn${mode === "custom" ? " active" : ""}`}
         onClick={() => onChange("custom")}
       >
-        カスタムフォーマット
+        {t("options_segment_custom")}
       </button>
     </div>
   );

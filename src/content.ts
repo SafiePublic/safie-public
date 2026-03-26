@@ -7,6 +7,7 @@ import {
 } from "./lib/link-formatter";
 import type { ObjectSettings, GlobalSettings } from "./lib/types";
 import { DEFAULT_GLOBAL_SETTINGS } from "./lib/types";
+import { t } from "./lib/i18n";
 
 function querySelectorInShadowDOM(
   root: Document | ShadowRoot | Element,
@@ -211,7 +212,7 @@ function getRecordLink(): { success: boolean; html?: string; plain?: string; toa
     const name = findReportName();
     if (!name) return { success: false };
     const link = formatBasicLink(name, window.location.href);
-    const result = prefixObjectName(link, 'レポート', cachedGlobalSettings.showObjectName, cachedGlobalSettings.linkNameOnly);
+    const result = prefixObjectName(link, t("content_reportLabel"), cachedGlobalSettings.showObjectName, cachedGlobalSettings.linkNameOnly);
     const toasts = cachedGlobalSettings.includeToast ? detectToastMessages() : [];
     return { success: true, ...result, toasts };
   }
@@ -242,7 +243,7 @@ async function copyToClipboard(
     await navigator.clipboard.write([clipboardItem]);
     return { success: true };
   } catch (err) {
-    console.error("SF Record Linker: コピーに失敗しました", err);
+    console.error("SF Record Linker: Copy failed", err);
     return { success: false };
   }
 }

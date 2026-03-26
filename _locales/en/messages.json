@@ -1,0 +1,190 @@
+{
+  "manifest_description": {
+    "message": "Copy Salesforce Lightning record page links with one click. Supports per-object field inclusion, custom formats, and multi-tab bulk copy."
+  },
+
+  "options_pageTitle": {
+    "message": "SF Record Linker Settings"
+  },
+  "options_description": {
+    "message": "Configure the fields to include in link text for each object."
+  },
+  "options_btn_save": {
+    "message": "Save"
+  },
+  "options_btn_export": {
+    "message": "Export"
+  },
+  "options_btn_import": {
+    "message": "Import"
+  },
+  "options_globalHeading": {
+    "message": "General Settings"
+  },
+  "options_toggle_showObjectName": {
+    "message": "Include object name"
+  },
+  "options_toggle_linkNameOnly": {
+    "message": "Link record name only"
+  },
+  "options_toggle_includeToast": {
+    "message": "Include error toast content in copy"
+  },
+  "options_toggle_bulletList": {
+    "message": "Bullet list for multiple tabs"
+  },
+  "options_bullet_ul": {
+    "message": "<ul> format"
+  },
+  "options_bullet_custom": {
+    "message": "Custom string"
+  },
+  "options_label_bulletChar": {
+    "message": "Prefix character"
+  },
+  "options_sectionObjectSettings": {
+    "message": "Object Settings"
+  },
+  "options_btn_addObject": {
+    "message": "+ Add per-object extended settings"
+  },
+  "options_toast_saved": {
+    "message": "Settings saved"
+  },
+  "options_toast_imported": {
+    "message": "Settings imported"
+  },
+  "options_toast_duplicateObject": {
+    "message": "Duplicate object names found"
+  },
+  "options_toast_validationError": {
+    "message": "Please check your input"
+  },
+
+  "options_card_heading": {
+    "message": "Per-object extended settings"
+  },
+  "options_card_btn_remove": {
+    "message": "Remove"
+  },
+
+  "options_form_label_objectName": {
+    "message": "Object name"
+  },
+  "options_form_placeholder_objectName": {
+    "message": "e.g. Product"
+  },
+  "options_form_label_fieldLabel": {
+    "message": "Field label"
+  },
+  "options_form_placeholder_fieldLabel": {
+    "message": "e.g. Product Code"
+  },
+  "options_form_toggle_showLabel": {
+    "message": "Include field label"
+  },
+  "options_form_label_format": {
+    "message": "Format"
+  },
+  "options_form_placeholder_format": {
+    "message": "e.g. ${name}(${Product Code})"
+  },
+  "options_form_help_nameVar": {
+    "message": "record name"
+  },
+  "options_form_help_objectVar": {
+    "message": "object name"
+  },
+  "options_form_help_fieldVar": {
+    "message": "to reference any field value"
+  },
+  "options_form_help_fieldVarExample": {
+    "message": "${Field Label}"
+  },
+
+  "options_segment_simple": {
+    "message": "Simple format"
+  },
+  "options_segment_custom": {
+    "message": "Custom format"
+  },
+
+  "options_viewToggle_card": {
+    "message": "Card"
+  },
+  "options_viewToggle_list": {
+    "message": "List"
+  },
+
+  "options_listRow_badgeSimple": {
+    "message": "Simple"
+  },
+  "options_listRow_badgeCustom": {
+    "message": "Custom"
+  },
+  "options_listRow_unset": {
+    "message": "(Unset)"
+  },
+
+  "options_list_empty": {
+    "message": "No per-object extended settings yet"
+  },
+
+  "options_preview_heading": {
+    "message": "Preview"
+  },
+  "options_preview_recordName": {
+    "message": "Record Name"
+  },
+  "options_preview_objectName": {
+    "message": "Object Name"
+  },
+  "options_preview_label": {
+    "message": "Label"
+  },
+  "options_preview_value": {
+    "message": "Value"
+  },
+  "options_preview_errorSample": {
+    "message": "⚠ Error: Error message"
+  },
+
+  "lib_settingsIo_invalidJson": {
+    "message": "Failed to parse JSON"
+  },
+  "lib_settingsIo_invalidDataFormat": {
+    "message": "Invalid data format"
+  },
+  "lib_settingsIo_missingObjectSettings": {
+    "message": "objectSettings not found"
+  },
+  "lib_settingsIo_missingGlobalSettings": {
+    "message": "globalSettings not found"
+  },
+  "lib_settingsIo_invalidEntry": {
+    "message": "objectSettings[\"$key$\"] is invalid",
+    "placeholders": {
+      "key": { "content": "$1" }
+    }
+  },
+  "lib_settingsIo_invalidEnabled": {
+    "message": "objectSettings[\"$key$\"].enabled is invalid",
+    "placeholders": {
+      "key": { "content": "$1" }
+    }
+  },
+  "lib_settingsIo_invalidMode": {
+    "message": "objectSettings[\"$key$\"].mode is invalid",
+    "placeholders": {
+      "key": { "content": "$1" }
+    }
+  },
+
+  "lib_linkFormatter_errorPrefix": {
+    "message": "⚠ Error: "
+  },
+
+  "content_reportLabel": {
+    "message": "Report"
+  }
+}

@@ -7,6 +7,7 @@ import { DEFAULT_GLOBAL_SETTINGS } from "../../../src/lib/types";
 const changeListeners: Array<(changes: Record<string, { newValue: unknown }>) => void> = [];
 
 const chromeMock = {
+  i18n: (globalThis.chrome as Record<string, unknown>)?.i18n ?? {},
   storage: {
     sync: {
       get: vi.fn((_defaults: unknown, cb: (result: Record<string, unknown>) => void) => {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "preact/hooks";
 import type { CardState, ValidationError } from "../../lib/types";
+import { t } from "../../lib/i18n";
 import { ObjectListRow } from "./ObjectListRow";
 
 interface ObjectListProps {
@@ -35,7 +36,7 @@ export function ObjectList({ cards, errors, linkNameOnly, showObjectName, onChan
   if (cards.length === 0) {
     return (
       <div class="object-list-empty">
-        オブジェクトごとの拡張設定はまだありません
+        {t("options_list_empty")}
       </div>
     );
   }

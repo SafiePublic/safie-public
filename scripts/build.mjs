@@ -12,6 +12,7 @@ copyFileSync("manifest.json", "dist/manifest.json");
 copyFileSync("src/options/options.html", "dist/options.html");
 copyFileSync("src/options/options.css", "dist/options.css");
 cpSync("icons", "dist/icons", { recursive: true });
+cpSync("_locales", "dist/_locales", { recursive: true });
 
 const commonOptions = {
   bundle: true,

@@ -2,6 +2,7 @@ import { useReducer, useEffect, useState, useRef } from "preact/hooks";
 import type { CardState, ObjectSettings, GlobalSettings, ValidationError } from "../lib/types";
 import { DEFAULT_GLOBAL_SETTINGS } from "../lib/types";
 import { validateCards } from "../lib/validation";
+import { t } from "../lib/i18n";
 import { useChromeStorage } from "./hooks/useChromeStorage";
 import { useToast } from "./hooks/useToast";
 import { ObjectCard } from "./components/ObjectCard";
@@ -71,6 +72,12 @@ export function App() {
     duplicateObjectNames: [],
   });
 
+  // ページタイトルと言語を動的に設定
+  useEffect(() => {
+    document.title = t("options_pageTitle");
+    document.documentElement.lang = chrome.i18n.getUILanguage();
+  }, []);
+
   // chrome.storage.local からビュー設定を復元
   useEffect(() => {
     try {
@@ -126,9 +133,9 @@ export function App() {
       });
 
       if (result.duplicateObjectNames.length > 0) {
-        showToast("オブジェクト名が重複しています");
+        showToast(t("options_toast_duplicateObject"));
       } else {
-        showToast("入力内容を確認してください");
+        showToast(t("options_toast_validationError"));
       }
       return;
     }
@@ -145,7 +152,7 @@ export function App() {
     }
 
     await saveSettings(objectSettings, globalSettings);
-    showToast("設定を保存しました");
+    showToast(t("options_toast_saved"));
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -177,7 +184,7 @@ export function App() {
     }
 
     await saveSettings(result.objectSettings, result.globalSettings);
-    showToast("設定をインポートしました");
+    showToast(t("options_toast_imported"));
 
     // ファイル入力をリセット（同じファイルの再選択を許可）
     if (fileInputRef.current) fileInputRef.current.value = "";
@@ -190,42 +197,42 @@ export function App() {
     <>
       <div class="page-header">
         <div class="page-header-row">
-          <h1>SF Record Linker 設定</h1>
+          <h1>{t("options_pageTitle")}</h1>
           <div class="header-actions">
-            <button class="btn-secondary" onClick={handleExport}>エクスポート</button>
-            <button class="btn-secondary" onClick={handleImportClick}>インポート</button>
+            <button class="btn-secondary" onClick={handleExport}>{t("options_btn_export")}</button>
+            <button class="btn-secondary" onClick={handleImportClick}>{t("options_btn_import")}</button>
             <input type="file" accept=".json" style={{ display: 'none' }} ref={fileInputRef} onChange={handleImportFile} />
-            <button class="btn-save" onClick={handleSave}>保存</button>
+            <button class="btn-save" onClick={handleSave}>{t("options_btn_save")}</button>
           </div>
         </div>
-        <p>オブジェクトごとにリンクテキストに含める項目を設定します。</p>
+        <p>{t("options_description")}</p>
       </div>
 
       <div class="global-settings">
-        <div class="global-settings-heading">基本設定</div>
+        <div class="global-settings-heading">{t("options_globalHeading")}</div>
         <Toggle
-          label="オブジェクト名を出力する"
+          label={t("options_toggle_showObjectName")}
           checked={globalSettings.showObjectName}
           onChange={(showObjectName) =>
             setGlobalSettings((prev) => ({ ...prev, showObjectName }))
           }
         />
         <Toggle
-          label="レコード名のみリンクにする"
+          label={t("options_toggle_linkNameOnly")}
           checked={globalSettings.linkNameOnly}
           onChange={(linkNameOnly) =>
             setGlobalSettings((prev) => ({ ...prev, linkNameOnly }))
           }
         />
         <Toggle
-          label="エラートーストの内容もコピーする"
+          label={t("options_toggle_includeToast")}
           checked={globalSettings.includeToast}
           onChange={(includeToast) =>
             setGlobalSettings((prev) => ({ ...prev, includeToast }))
           }
         />
         <Toggle
-          label="複数タブ時に箇条書きでコピー"
+          label={t("options_toggle_bulletList")}
           checked={globalSettings.bulletList}
           onChange={(bulletList) =>
             setGlobalSettings((prev) => ({ ...prev, bulletList }))
@@ -238,18 +245,18 @@ export function App() {
                 class={`segment-btn ${globalSettings.bulletStyle === 'ul' ? 'active' : ''}`}
                 onClick={() => setGlobalSettings((prev) => ({ ...prev, bulletStyle: 'ul' as const }))}
               >
-                &lt;ul&gt; 形式
+                {t("options_bullet_ul")}
               </button>
               <button
                 class={`segment-btn ${globalSettings.bulletStyle === 'custom' ? 'active' : ''}`}
                 onClick={() => setGlobalSettings((prev) => ({ ...prev, bulletStyle: 'custom' as const }))}
               >
-                任意文字列
+                {t("options_bullet_custom")}
               </button>
             </div>
             {globalSettings.bulletStyle === 'custom' && (
               <div class="field-group" style={{ marginBottom: '16px' }}>
-                <label>接頭文字</label>
+                <label>{t("options_label_bulletChar")}</label>
                 <input
                   class="input-field"
                   style={{ width: '80px' }}
@@ -277,7 +284,7 @@ export function App() {
 
       {state.cards.length > 0 && (
         <div class="section-header">
-          <span class="section-header-label">オブジェクト設定</span>
+          <span class="section-header-label">{t("options_sectionObjectSettings")}</span>
           <ViewToggle mode={viewMode} onChange={handleViewModeChange} />
         </div>
       )}
@@ -308,7 +315,7 @@ export function App() {
       )}
 
       <button class="btn-add" onClick={() => dispatch({ type: "add" })}>
-        + オブジェクトごとの拡張設定を追加
+        {t("options_btn_addObject")}
       </button>
 
       <Toast message={toastMessage} visible={toastVisible} />

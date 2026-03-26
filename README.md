@@ -4,13 +4,16 @@ A Chrome extension for Salesforce Lightning that copies record page links to you
 
 Salesforce Lightning レコードページ用 Chrome 拡張機能。レコードへのリンクをワンクリックでクリップボードにコピーする。
 
+> **Language / 言語**: This extension supports Japanese and English. The UI language follows your Chrome language setting.
+> 日本語と英語に対応しています。Chrome の言語設定に応じて自動的に切り替わります。
+
 ## 機能
 
 ### 基本機能
 
 - **ワンクリックコピー** — 拡張アイコンをクリックするだけでレコード名のハイパーリンクをコピー（リッチテキスト + プレーンテキスト）
 - **レポートページ対応** — レポートの閲覧ページでもレポート名のリンクをコピー可能
-- **レコードページ限定** — `declarativeContent` により Salesforce のレコードページ以外ではアイコンが無効化
+- **対象ページ限定** — `declarativeContent` により Salesforce のレコードページ・レポートページ以外ではアイコンが無効化
 
 ### オプション機能（設定画面で有効化）
 
@@ -95,6 +98,20 @@ npm run typecheck # 型チェック
 
 コード変更後は拡張機能カードの更新ボタンを押し、Salesforce タブをリロード。
 
+### 多言語対応（i18n）
+
+UI テキストは `chrome.i18n` API で国際化されており、`_locales/` に言語ファイルを配置している。
+
+```
+_locales/
+├── ja/messages.json   # 日本語（デフォルト）
+└── en/messages.json   # 英語
+```
+
+- メッセージキーは `src/lib/i18n.ts` の `MessageKey` 型で管理
+- ソースコード内では `t("messageKey")` でメッセージを取得
+- 新しい言語を追加する場合は `_locales/<lang>/messages.json` を作成し、既存の `ja/messages.json` と同じキー構造で翻訳を記述する
+
 ## プロジェクト構成
 
 ```
@@ -105,7 +122,8 @@ sf-record-linker/
 │   ├── options/          # 設定画面（Preact + useReducer）
 │   │   ├── components/   # UI コンポーネント
 │   │   └── hooks/        # カスタムフック
-│   └── lib/              # 共有ロジック（リンク生成・バリデーション・型定義・設定I/O）
+│   └── lib/              # 共有ロジック（リンク生成・バリデーション・型定義・設定I/O・i18n）
+├── _locales/             # 多言語メッセージ（ja / en）
 ├── tests/                # Vitest テスト
 ├── scripts/              # ビルドスクリプト（esbuild）
 ├── dist/                 # ビルド出力（Chrome 拡張として読み込む）
@@ -119,6 +137,7 @@ sf-record-linker/
 - TypeScript + esbuild（IIFE バンドル）
 - Preact — 設定画面の宣言的 UI
 - Vitest + @testing-library/preact（テスト）
+- chrome.i18n — 多言語対応（日本語 / 英語）
 - Service Worker + declarativeContent — レコードページでのみアイコン有効化
 - Content Script（`*://*.lightning.force.com/*` で動作）
 - Clipboard API — text/html + text/plain 両方をセット

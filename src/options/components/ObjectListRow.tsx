@@ -1,4 +1,5 @@
 import type { CardState, ValidationError } from "../../lib/types";
+import { t } from "../../lib/i18n";
 import { ObjectForm } from "./ObjectForm";
 
 interface ObjectListRowProps {
@@ -13,7 +14,7 @@ interface ObjectListRowProps {
 }
 
 function modeBadgeLabel(mode: CardState["mode"]): string {
-  return mode === "simple" ? "簡易" : "カスタム";
+  return mode === "simple" ? t("options_listRow_badgeSimple") : t("options_listRow_badgeCustom");
 }
 
 function configSummary(card: CardState): string {
@@ -39,7 +40,7 @@ export function ObjectListRow({
     <div class={`list-row${hasError ? " error" : ""}`}>
       <div class="list-row-summary" onClick={onToggle}>
         <span class="list-row-chevron">{expanded ? "▼" : "▶"}</span>
-        <span class="list-row-name">{card.objectName.trim() || "（未設定）"}</span>
+        <span class="list-row-name">{card.objectName.trim() || t("options_listRow_unset")}</span>
         <span class="mode-badge">{modeBadgeLabel(card.mode)}</span>
         <span class="list-row-config">{configSummary(card)}</span>
         <button
@@ -49,7 +50,7 @@ export function ObjectListRow({
             onRemove();
           }}
         >
-          削除
+          {t("options_card_btn_remove")}
         </button>
       </div>
 

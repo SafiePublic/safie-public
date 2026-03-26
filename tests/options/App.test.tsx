@@ -15,6 +15,7 @@ const changeListeners: Array<(changes: Record<string, unknown>) => void> = [];
 const localStorageMock: Record<string, unknown> = {};
 
 const chromeMock = {
+  i18n: (globalThis.chrome as Record<string, unknown>)?.i18n ?? {},
   storage: {
     sync: {
       get: vi.fn((_defaults: unknown, cb: (result: typeof storageMock) => void) => {

@@ -1,0 +1,190 @@
+{
+  "manifest_description": {
+    "message": "Salesforce Lightning レコードページのリンクをワンクリックでコピー。オブジェクトごとの項目付加やカスタムフォーマット、複数タブ一括コピーに対応。"
+  },
+
+  "options_pageTitle": {
+    "message": "SF Record Linker 設定"
+  },
+  "options_description": {
+    "message": "オブジェクトごとにリンクテキストに含める項目を設定します。"
+  },
+  "options_btn_save": {
+    "message": "保存"
+  },
+  "options_btn_export": {
+    "message": "エクスポート"
+  },
+  "options_btn_import": {
+    "message": "インポート"
+  },
+  "options_globalHeading": {
+    "message": "基本設定"
+  },
+  "options_toggle_showObjectName": {
+    "message": "オブジェクト名を出力する"
+  },
+  "options_toggle_linkNameOnly": {
+    "message": "レコード名のみリンクにする"
+  },
+  "options_toggle_includeToast": {
+    "message": "エラートーストの内容もコピーする"
+  },
+  "options_toggle_bulletList": {
+    "message": "複数タブ時に箇条書きでコピー"
+  },
+  "options_bullet_ul": {
+    "message": "<ul> 形式"
+  },
+  "options_bullet_custom": {
+    "message": "任意文字列"
+  },
+  "options_label_bulletChar": {
+    "message": "接頭文字"
+  },
+  "options_sectionObjectSettings": {
+    "message": "オブジェクト設定"
+  },
+  "options_btn_addObject": {
+    "message": "+ オブジェクトごとの拡張設定を追加"
+  },
+  "options_toast_saved": {
+    "message": "設定を保存しました"
+  },
+  "options_toast_imported": {
+    "message": "設定をインポートしました"
+  },
+  "options_toast_duplicateObject": {
+    "message": "オブジェクト名が重複しています"
+  },
+  "options_toast_validationError": {
+    "message": "入力内容を確認してください"
+  },
+
+  "options_card_heading": {
+    "message": "オブジェクトごとの拡張設定"
+  },
+  "options_card_btn_remove": {
+    "message": "削除"
+  },
+
+  "options_form_label_objectName": {
+    "message": "オブジェクト名"
+  },
+  "options_form_placeholder_objectName": {
+    "message": "例: 商品"
+  },
+  "options_form_label_fieldLabel": {
+    "message": "項目ラベル名"
+  },
+  "options_form_placeholder_fieldLabel": {
+    "message": "例: 商品コード"
+  },
+  "options_form_toggle_showLabel": {
+    "message": "項目ラベル名を出力する"
+  },
+  "options_form_label_format": {
+    "message": "フォーマット"
+  },
+  "options_form_placeholder_format": {
+    "message": "例: ${name}(${商品コード})"
+  },
+  "options_form_help_nameVar": {
+    "message": "レコード名"
+  },
+  "options_form_help_objectVar": {
+    "message": "オブジェクト名"
+  },
+  "options_form_help_fieldVar": {
+    "message": "で任意の項目値を参照できます"
+  },
+  "options_form_help_fieldVarExample": {
+    "message": "${項目ラベル名}"
+  },
+
+  "options_segment_simple": {
+    "message": "簡易フォーマット"
+  },
+  "options_segment_custom": {
+    "message": "カスタムフォーマット"
+  },
+
+  "options_viewToggle_card": {
+    "message": "カード"
+  },
+  "options_viewToggle_list": {
+    "message": "リスト"
+  },
+
+  "options_listRow_badgeSimple": {
+    "message": "簡易"
+  },
+  "options_listRow_badgeCustom": {
+    "message": "カスタム"
+  },
+  "options_listRow_unset": {
+    "message": "（未設定）"
+  },
+
+  "options_list_empty": {
+    "message": "オブジェクトごとの拡張設定はまだありません"
+  },
+
+  "options_preview_heading": {
+    "message": "プレビュー"
+  },
+  "options_preview_recordName": {
+    "message": "レコード名"
+  },
+  "options_preview_objectName": {
+    "message": "オブジェクト名"
+  },
+  "options_preview_label": {
+    "message": "ラベル"
+  },
+  "options_preview_value": {
+    "message": "値"
+  },
+  "options_preview_errorSample": {
+    "message": "⚠ エラー: エラーメッセージ"
+  },
+
+  "lib_settingsIo_invalidJson": {
+    "message": "JSONの解析に失敗しました"
+  },
+  "lib_settingsIo_invalidDataFormat": {
+    "message": "無効なデータ形式です"
+  },
+  "lib_settingsIo_missingObjectSettings": {
+    "message": "objectSettings が見つかりません"
+  },
+  "lib_settingsIo_missingGlobalSettings": {
+    "message": "globalSettings が見つかりません"
+  },
+  "lib_settingsIo_invalidEntry": {
+    "message": "objectSettings[\"$key$\"] が無効です",
+    "placeholders": {
+      "key": { "content": "$1" }
+    }
+  },
+  "lib_settingsIo_invalidEnabled": {
+    "message": "objectSettings[\"$key$\"].enabled が無効です",
+    "placeholders": {
+      "key": { "content": "$1" }
+    }
+  },
+  "lib_settingsIo_invalidMode": {
+    "message": "objectSettings[\"$key$\"].mode が無効です",
+    "placeholders": {
+      "key": { "content": "$1" }
+    }
+  },
+
+  "lib_linkFormatter_errorPrefix": {
+    "message": "⚠ エラー: "
+  },
+
+  "content_reportLabel": {
+    "message": "レポート"
+  }
+}

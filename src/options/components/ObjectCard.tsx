@@ -1,4 +1,5 @@
 import type { CardState, ValidationError } from "../../lib/types";
+import { t } from "../../lib/i18n";
 import { ObjectForm } from "./ObjectForm";
 
 interface ObjectCardProps {
@@ -16,9 +17,9 @@ export function ObjectCard({ card, errors, linkNameOnly, showObjectName, onChang
   return (
     <div class={`card${hasError ? " error" : ""}`}>
       <div class="card-header">
-        <span class="card-header-label">オブジェクトごとの拡張設定</span>
+        <span class="card-header-label">{t("options_card_heading")}</span>
         <button class="btn-remove" onClick={onRemove}>
-          削除
+          {t("options_card_btn_remove")}
         </button>
       </div>
 
