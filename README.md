@@ -4,17 +4,27 @@ Salesforce Lightning レコードページ用 Chrome 拡張機能。レコード
 
 ## 機能
 
+### 基本機能
+
 - **ワンクリックコピー** — 拡張アイコンをクリックするだけでレコード名のハイパーリンクをコピー（リッチテキスト + プレーンテキスト）
+- **レポートページ対応** — レポートの閲覧ページでもレポート名のリンクをコピー可能
+- **レコードページ限定** — `declarativeContent` により Salesforce のレコードページ以外ではアイコンが無効化
+
+### オプション機能（設定画面で有効化）
+
+- **オブジェクト名出力** — リンクテキストの先頭にオブジェクト名を付加（例: `商品: Product A`）
+- **リンク範囲の切り替え** — レコード名のみリンク化 / 全体をリンク化を選択可能
 - **簡易設定** — オブジェクトごとに項目を1つ指定し、`レコード名(項目値)` 形式でコピー
 - **カスタムフォーマット** — テンプレート変数（`${name}`, `${object}`, `${項目ラベル名}`）を組み合わせて自由な形式を定義
-- **複数タブ一括コピー** — 複数タブを選択した状態でアイコンをクリックすると、全タブのレコードリンクを改行区切りでまとめてコピー
-- **レコードページ限定** — `declarativeContent` により Salesforce のレコードページ以外ではアイコンが無効化
+- **エラートーストコピー** — 画面にエラートーストが表示されている時、リンクの後ろにエラー内容を追記（`レコード名 / ⚠ エラー: ...`）
+- **複数タブ一括コピー** — 複数タブを選択してまとめてコピー（箇条書きスタイル選択可能）
+- **設定エクスポート/インポート** — JSON形式で設定の保存・復元が可能
 
 ## 使い方
 
 ### 基本操作
 
-1. Salesforce Lightning のレコードページを開く
+1. Salesforce Lightning のレコードページ（またはレポートページ）を開く
 2. 拡張アイコンをクリック
 3. レコード名のリンクがクリップボードにコピーされる
 
@@ -22,9 +32,22 @@ Salesforce Lightning レコードページ用 Chrome 拡張機能。レコード
 
 ### 設定（オプション）
 
-拡張機能の設定画面（右クリック →「オプション」）でオブジェクトごとにコピー形式をカスタマイズできる。
+拡張機能の設定画面（右クリック →「オプション」）でコピー形式をカスタマイズできる。
 
 ![オプション画面](docs/screenshots/store-screenshot-options.png)
+
+#### 基本設定
+
+| オプション | 説明 | デフォルト |
+|-----------|------|----------|
+| オブジェクト名を出力する | リンクテキストの先頭にオブジェクト名を付加 | OFF |
+| レコード名のみリンクにする | ON: レコード名のみリンク化、OFF: 全体をリンク化 | OFF |
+| エラートーストの内容もコピーする | エラートースト表示時にエラー内容をリンクの後ろに追記 | OFF |
+| 複数タブ時に箇条書きでコピー | 複数タブ一括コピー時に箇条書き形式で出力。`<ul>` 形式または任意の接頭文字を選択可能 | OFF |
+
+設定変更はプレビューでリアルタイムに確認できる。
+
+#### オブジェクトごとの拡張設定
 
 **簡易設定**: 項目を1つ指定して付加する。
 
@@ -46,6 +69,8 @@ Salesforce Lightning レコードページ用 Chrome 拡張機能。レコード
 | `[${object}]${name}(${商品コード} / ${カテゴリ})` | `[商品]Product A(ABC-001 / Electronics)` |
 
 フォーマット内の項目が取得できなかった場合は、レコード名のみのリンクにフォールバックする。
+
+オブジェクト設定はカード表示とリスト表示を切り替えて管理できる。
 
 ## セットアップ
 
@@ -73,46 +98,17 @@ npm run typecheck # 型チェック
 ```
 sf-record-linker/
 ├── src/
-│   ├── content.ts             # Content Script（メッセージ受信・DOM探索・クリップボードコピー）
-│   ├── background.ts          # Service Worker（アイコンクリック・declarativeContent）
-│   ├── options/               # 設定画面（Preact）
-│   │   ├── index.tsx          # エントリポイント
-│   │   ├── App.tsx            # メインコンポーネント（useReducer で状態管理）
-│   │   ├── components/        # UI コンポーネント
-│   │   │   ├── ObjectCard.tsx
-│   │   │   ├── SegmentControl.tsx
-│   │   │   ├── Toggle.tsx
-│   │   │   ├── Preview.tsx
-│   │   │   └── Toast.tsx
-│   │   ├── hooks/             # カスタムフック
-│   │   │   ├── useChromeStorage.ts
-│   │   │   └── useToast.ts
-│   │   ├── options.html       # 設定画面 HTML
-│   │   └── options.css        # スタイル
-│   └── lib/
-│       ├── link-formatter.ts  # リンク生成ロジック
-│       ├── validation.ts      # バリデーション純粋関数
-│       └── types.ts           # 共有型定義
-├── tests/
-│   ├── lib/
-│   │   ├── link-formatter.test.ts
-│   │   └── validation.test.ts
-│   └── options/
-│       ├── App.test.tsx
-│       ├── ObjectCard.test.tsx
-│       └── hooks/
-│           └── useChromeStorage.test.ts
-├── scripts/
-│   └── build.mjs             # esbuild ビルドスクリプト
-├── dist/                      # ビルド出力（Chrome 拡張として読み込む）
-├── manifest.json              # Chrome Extension Manifest V3
-├── icons/
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
-├── package.json
-├── tsconfig.json
-└── .gitignore
+│   ├── content.ts        # Content Script（DOM探索・クリップボードコピー）
+│   ├── background.ts     # Service Worker（アイコンクリック・declarativeContent）
+│   ├── options/          # 設定画面（Preact + useReducer）
+│   │   ├── components/   # UI コンポーネント
+│   │   └── hooks/        # カスタムフック
+│   └── lib/              # 共有ロジック（リンク生成・バリデーション・型定義・設定I/O）
+├── tests/                # Vitest テスト
+├── scripts/              # ビルドスクリプト（esbuild）
+├── dist/                 # ビルド出力（Chrome 拡張として読み込む）
+├── manifest.json         # Chrome Extension Manifest V3
+└── icons/                # 拡張アイコン
 ```
 
 ## 技術スタック

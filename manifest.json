@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SF Record Linker",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Salesforce Lightning レコードページのリンクをワンクリックでコピー。オブジェクトごとの項目付加やカスタムフォーマット、複数タブ一括コピーに対応。",
   "icons": {
     "16": "icons/icon16.png",
