@@ -7,6 +7,7 @@ import {
   escapeHtml,
   joinLinks,
   prefixObjectName,
+  appendToastMessages,
 } from "../../src/lib/link-formatter";
 
 describe("escapeHtml", () => {
@@ -382,5 +383,40 @@ describe("joinLinks", () => {
     const result = joinLinks(links, { enabled: true, style: 'custom', char: '・' });
     expect(result.html).toBe("<div>・<a>A</a></div><div>・<a>B</a></div>");
     expect(result.plain).toBe("・A\n・B");
+  });
+
+});
+
+describe("appendToastMessages", () => {
+  const baseLink = { html: '<a href="https://example.com">商品A</a>', plain: "商品A" };
+
+  it("returns link unchanged when toasts array is empty", () => {
+    const result = appendToastMessages(baseLink, []);
+    expect(result).toBe(baseLink);
+  });
+
+  it("appends single toast message with slash separator", () => {
+    const result = appendToastMessages(baseLink, ["入力規則に違反しています"]);
+    expect(result.plain).toBe("商品A / ⚠ エラー: 入力規則に違反しています");
+    expect(result.html).toBe(
+      '<a href="https://example.com">商品A</a> / <span style="color:#c23934">⚠ エラー: 入力規則に違反しています</span>',
+    );
+  });
+
+  it("joins multiple toast messages with slash separator", () => {
+    const result = appendToastMessages(baseLink, [
+      "入力規則に違反しています",
+      "必須項目が未入力です",
+    ]);
+    expect(result.plain).toBe(
+      "商品A / ⚠ エラー: 入力規則に違反しています / ⚠ エラー: 必須項目が未入力です",
+    );
+  });
+
+  it("escapes HTML special characters in toast messages", () => {
+    const result = appendToastMessages(baseLink, ['値が <script> & "invalid"']);
+    expect(result.html).toContain(
+      "⚠ エラー: 値が &lt;script&gt; &amp; &quot;invalid&quot;",
+    );
   });
 });

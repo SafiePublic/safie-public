@@ -38,12 +38,14 @@ export interface GlobalSettings {
   bulletChar: string;
   linkNameOnly: boolean;
   showObjectName: boolean;
+  includeToast: boolean;
 }
 
 export const DEFAULT_GLOBAL_SETTINGS: GlobalSettings = {
   bulletList: false,
   bulletStyle: 'custom',
   bulletChar: '- ',
-  linkNameOnly: true,
+  linkNameOnly: false,
   showObjectName: false,
+  includeToast: false,
 };

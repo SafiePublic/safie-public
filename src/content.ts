@@ -140,6 +140,36 @@ function buildLink(
   return formatBasicLink(recordName, url);
 }
 
+const ERROR_CLASS_PATTERNS = ['slds-theme--error', 'slds-theme_error'];
+
+function detectToastMessages(): string[] {
+  const container =
+    document.querySelector('div.forceToastManager div.toastContainer') ||
+    document.querySelector('div.forceToastManager');
+  if (!container) return [];
+
+  const byClass = container.querySelectorAll('div.forceToastMessage');
+  const toastItems = byClass.length > 0
+    ? byClass
+    : container.querySelectorAll('[data-aura-class="forceToastMessage"]');
+
+  const messages: string[] = [];
+  for (const item of toastItems) {
+    const isError = ERROR_CLASS_PATTERNS.some((cls) =>
+      item.querySelector(`.${cls}`) !== null || item.classList.contains(cls),
+    );
+    if (!isError) continue;
+
+    const textEl =
+      item.querySelector<HTMLElement>('.toastMessage.forceActionsText') ||
+      item.querySelector<HTMLElement>('.toastMessage') ||
+      item.querySelector<HTMLElement>('div.toastContent span');
+    const text = textEl?.innerText?.trim();
+    if (text) messages.push(text);
+  }
+  return messages;
+}
+
 let cachedSettings: ObjectSettings = {};
 let cachedGlobalSettings: GlobalSettings = { ...DEFAULT_GLOBAL_SETTINGS };
 
@@ -169,7 +199,7 @@ function findReportName(): string | null {
   return title?.trim() || null;
 }
 
-function getRecordLink(): { success: boolean; html?: string; plain?: string } {
+function getRecordLink(): { success: boolean; html?: string; plain?: string; toasts?: string[] } {
   const pageType = detectPageType();
   if (pageType === 'unknown') return { success: false };
 
@@ -177,8 +207,9 @@ function getRecordLink(): { success: boolean; html?: string; plain?: string } {
     const name = findReportName();
     if (!name) return { success: false };
     const link = formatBasicLink(name, window.location.href);
-    const result = prefixObjectName(link, 'レポート', cachedGlobalSettings.showObjectName);
-    return { success: true, ...result };
+    const result = prefixObjectName(link, 'レポート', cachedGlobalSettings.showObjectName, cachedGlobalSettings.linkNameOnly);
+    const toasts = cachedGlobalSettings.includeToast ? detectToastMessages() : [];
+    return { success: true, ...result, toasts };
   }
 
   const startEl =
@@ -189,8 +220,10 @@ function getRecordLink(): { success: boolean; html?: string; plain?: string } {
 
   const recordName = nameEl.innerText.trim();
   const url = window.location.href;
-  const { html, plain } = buildLink(recordName, url, startEl);
-  return { success: true, html, plain };
+  const link = buildLink(recordName, url, startEl);
+  const toasts = cachedGlobalSettings.includeToast ? detectToastMessages() : [];
+
+  return { success: true, html: link.html, plain: link.plain, toasts };
 }
 
 async function copyToClipboard(

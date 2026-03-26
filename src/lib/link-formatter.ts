@@ -140,6 +140,20 @@ export function joinLinks(links: LinkResult[], bullet: BulletConfig): LinkResult
   };
 }
 
+export function appendToastMessages(
+  link: LinkResult,
+  toasts: string[],
+): LinkResult {
+  if (toasts.length === 0) return link;
+
+  const suffix = toasts.map((msg) => `⚠ エラー: ${msg}`).join(" / ");
+
+  return {
+    html: `${link.html} / <span style="color:#c23934">${escapeHtml(suffix)}</span>`,
+    plain: `${link.plain} / ${suffix}`,
+  };
+}
+
 export function escapeHtml(str: string): string {
   return str
     .replace(/&/g, "&amp;")

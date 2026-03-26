@@ -129,8 +129,9 @@ describe("App", () => {
             bulletList: false,
             bulletStyle: 'custom',
             bulletChar: '- ',
-            linkNameOnly: true,
+            linkNameOnly: false,
             showObjectName: false,
+            includeToast: false,
           },
         },
         expect.any(Function),
@@ -185,9 +186,9 @@ describe("App", () => {
   it("saves toggled globalSettings", async () => {
     render(<App />);
 
-    // Toggle bulletList on (第3トグル、デフォルトはfalse)
+    // Toggle bulletList on (第4トグル、デフォルトはfalse。includeToast追加により index が 2→3 に)
     const toggles = document.querySelectorAll<HTMLInputElement>(".global-settings .toggle-input");
-    fireEvent.change(toggles[2], { target: { checked: true } });
+    fireEvent.change(toggles[3], { target: { checked: true } });
 
     fireEvent.click(screen.getByText("保存"));
 
@@ -198,8 +199,9 @@ describe("App", () => {
             bulletList: true,
             bulletStyle: 'custom',
             bulletChar: '- ',
-            linkNameOnly: true,
+            linkNameOnly: false,
             showObjectName: false,
+            includeToast: false,
           },
         }),
         expect.any(Function),
@@ -208,15 +210,16 @@ describe("App", () => {
   });
 
   it("loads globalSettings from chrome.storage", () => {
-    storageMock.globalSettings = { bulletList: true, bulletStyle: 'ul', bulletChar: '* ', linkNameOnly: false, showObjectName: true };
+    storageMock.globalSettings = { bulletList: true, bulletStyle: 'ul', bulletChar: '* ', linkNameOnly: false, showObjectName: true, includeToast: true };
 
     render(<App />);
 
     const toggles = document.querySelectorAll<HTMLInputElement>(".global-settings .toggle-input");
-    // toggles[0] = linkNameOnly, toggles[1] = showObjectName, toggles[2] = bulletList
-    expect(toggles[0].checked).toBe(false);
-    expect(toggles[1].checked).toBe(true);
+    // toggles[0] = showObjectName, toggles[1] = linkNameOnly, toggles[2] = includeToast, toggles[3] = bulletList
+    expect(toggles[0].checked).toBe(true);
+    expect(toggles[1].checked).toBe(false);
     expect(toggles[2].checked).toBe(true);
+    expect(toggles[3].checked).toBe(true);
   });
 
   describe("view toggle", () => {

@@ -204,6 +204,13 @@ export function App() {
       <div class="global-settings">
         <div class="global-settings-heading">基本設定</div>
         <Toggle
+          label="オブジェクト名を出力する"
+          checked={globalSettings.showObjectName}
+          onChange={(showObjectName) =>
+            setGlobalSettings((prev) => ({ ...prev, showObjectName }))
+          }
+        />
+        <Toggle
           label="レコード名のみリンクにする"
           checked={globalSettings.linkNameOnly}
           onChange={(linkNameOnly) =>
@@ -211,10 +218,10 @@ export function App() {
           }
         />
         <Toggle
-          label="オブジェクト名を出力する"
-          checked={globalSettings.showObjectName}
-          onChange={(showObjectName) =>
-            setGlobalSettings((prev) => ({ ...prev, showObjectName }))
+          label="エラートーストの内容もコピーする"
+          checked={globalSettings.includeToast}
+          onChange={(includeToast) =>
+            setGlobalSettings((prev) => ({ ...prev, includeToast }))
           }
         />
         <Toggle
@@ -260,9 +267,11 @@ export function App() {
         )}
         <GlobalPreview
           showObjectName={globalSettings.showObjectName}
+          linkNameOnly={globalSettings.linkNameOnly}
           bulletList={globalSettings.bulletList}
           bulletStyle={globalSettings.bulletStyle}
           bulletChar={globalSettings.bulletChar}
+          includeToast={globalSettings.includeToast}
         />
       </div>
 

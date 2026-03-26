@@ -39,30 +39,38 @@ function computePreviewParts(
   if (linkNameOnly) {
     return { before: prefix, linked: "レコード名", after: suffix };
   }
-  return { before: prefix, linked: `レコード名${suffix}`, after: "" };
+  return { before: "", linked: `${prefix}レコード名${suffix}`, after: "" };
 }
 
 interface GlobalPreviewProps {
   showObjectName: boolean;
+  linkNameOnly: boolean;
   bulletList: boolean;
   bulletStyle: "ul" | "custom";
   bulletChar: string;
+  includeToast: boolean;
 }
 
-export function GlobalPreview({ showObjectName, bulletList, bulletStyle, bulletChar }: GlobalPreviewProps) {
+export function GlobalPreview({ showObjectName, linkNameOnly, bulletList, bulletStyle, bulletChar, includeToast }: GlobalPreviewProps) {
   const prefix = showObjectName ? "オブジェクト名: " : "";
-  const line = (
+  const line = linkNameOnly ? (
     <>
       {prefix && <span>{prefix}</span>}
       <u>レコード名</u>
     </>
+  ) : (
+    <u>{prefix}レコード名</u>
+  );
+
+  const toast = includeToast && (
+    <span class="preview-toast"> / ⚠ エラー: エラーメッセージ</span>
   );
 
   if (!bulletList) {
     return (
       <div class="preview">
         <div class="preview-heading">プレビュー</div>
-        <div class="preview-text">{line}</div>
+        <div class="preview-text">{line}{toast}</div>
       </div>
     );
   }
@@ -72,7 +80,7 @@ export function GlobalPreview({ showObjectName, bulletList, bulletStyle, bulletC
       <div class="preview">
         <div class="preview-heading">プレビュー</div>
         <ul class="preview-list">
-          <li class="preview-text">{line}</li>
+          <li class="preview-text">{line}{toast}</li>
           <li class="preview-text">{line}</li>
         </ul>
       </div>
@@ -84,7 +92,7 @@ export function GlobalPreview({ showObjectName, bulletList, bulletStyle, bulletC
     <div class="preview">
       <div class="preview-heading">プレビュー</div>
       <div class="preview-text">
-        <span>{bulletChar}</span>{line}
+        <span>{bulletChar}</span>{line}{toast}
       </div>
       <div class="preview-text">
         <span>{bulletChar}</span>{line}

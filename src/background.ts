@@ -1,4 +1,4 @@
-import { joinLinks } from "./lib/link-formatter";
+import { joinLinks, appendToastMessages } from "./lib/link-formatter";
 import type { GlobalSettings } from "./lib/types";
 import { DEFAULT_GLOBAL_SETTINGS } from "./lib/types";
 
@@ -55,12 +55,12 @@ chrome.action.onClicked.addListener(async (tab) => {
       }),
     );
 
-    const links = results.filter(
-      (r): r is { success: true; html: string; plain: string } =>
+    const successResults = results.filter(
+      (r): r is { success: true; html: string; plain: string; toasts?: string[] } =>
         r?.success === true && r.html && r.plain,
     );
 
-    if (links.length === 0) {
+    if (successResults.length === 0) {
       setBadge(tab.id, false);
       return;
     }
@@ -70,11 +70,18 @@ chrome.action.onClicked.addListener(async (tab) => {
     }) as { globalSettings: GlobalSettings };
     const globalSettings = { ...DEFAULT_GLOBAL_SETTINGS, ...stored.globalSettings };
 
-    const { html, plain } = joinLinks(links, {
+    const bullet = {
       enabled: globalSettings.bulletList,
       style: globalSettings.bulletStyle,
       char: globalSettings.bulletChar,
+    };
+
+    const links = successResults.map((r) => {
+      const link = { html: r.html, plain: r.plain };
+      return r.toasts?.length ? appendToastMessages(link, r.toasts) : link;
     });
+
+    const { html, plain } = joinLinks(links, bullet);
 
     const response = await chrome.tabs.sendMessage(tab.id, {
       action: "copyToClipboard",
