@@ -1,123 +1,124 @@
-# Chrome ウェブストア公開手順ガイド
+# Chrome ウェブストア公開・更新ガイド
 
-## 1. デベロッパーアカウント登録
+このガイドは Chrome ウェブストアへの申請と、バージョン更新時の手順をまとめたものです。
+必要な素材はすべて GitHub 上に公開されています。
 
-- https://chrome.google.com/webstore/devconsole にアクセス
-- 初回は $5 の登録料が必要
-- Google アカウントでログイン
+---
 
-## 2. 申請前に準備するもの
+## 素材の入手先
 
-### 必須素材
+すべて GitHub リポジトリから取得できます。
 
-| 素材 | ファイル | 状態 |
-|------|---------|------|
-| ZIP パッケージ | `npm run package` → `sf-record-linker.zip` | ✅ 準備済み |
-| アイコン 128x128 | `icons/icon128.png` | ✅ 準備済み |
-| スクリーンショット（1枚以上） | `docs/screenshots/` | ⚠️ オプション画面のみ。**コピー動作のスクリーンショットを追加推奨** |
-| プライバシーポリシー URL | `docs/privacy-policy.html` | ⚠️ ファイル作成済み。GitHub Pages 等で公開が必要 |
-| ストア掲載テキスト | `docs/store-listing.md` | ✅ 準備済み |
+| 素材 | URL |
+|------|-----|
+| **ZIP パッケージ** | [最新リリースページ](https://github.com/SafiePublic/sf-record-linker/releases/latest) の Assets から `sf-record-linker.zip` をダウンロード |
+| **ストア掲載テキスト** | [docs/store-listing.md](https://github.com/SafiePublic/sf-record-linker/blob/main/docs/store-listing.md) |
+| **スクリーンショット** | [docs/screenshots/store-screenshot-options.png](https://github.com/SafiePublic/sf-record-linker/blob/main/docs/screenshots/store-screenshot-options.png) — 「Download raw file」ボタンでダウンロード |
+| **プライバシーポリシー URL** | https://safiepublic.github.io/sf-record-linker/privacy-policy.html |
+| **リポジトリ URL**（ウェブサイト欄用） | https://github.com/SafiePublic/sf-record-linker |
 
-### 推奨素材
+---
 
-| 素材 | サイズ | 状態 |
-|------|-------|------|
-| プロモーション画像（小） | 440x280 PNG | 未作成 |
-| プロモーション画像（大） | 920x680 PNG | 未作成 |
+## 初回申請手順
 
-### スクリーンショット仕様
-
-- 最小 1280x800 または 640x400
-- 最大 5枚
-- PNG または JPEG
-- 推奨内容:
-  1. Salesforce レコードページでアイコンクリック → コピー成功バッジ表示
-  2. コピーしたリンクをメール等に貼り付けた結果
-  3. オプション画面（既存: `store-screenshot-options.png`）
-
-## 3. プライバシーポリシーの公開
-
-`docs/privacy-policy.html` を公開する。方法はいずれか:
-
-### 方法A: GitHub Pages
-
-```bash
-# リポジトリの Settings → Pages → Source: main / docs
-# 公開後の URL 例:
-# https://<username>.github.io/sf-record-linker/privacy-policy.html
-```
-
-### 方法B: GitHub の raw URL
-
-リポジトリが public なら raw URL をそのまま使える（ただし HTML レンダリングされない）。
-
-→ **GitHub Pages（方法A）を推奨**
-
-## 4. デベロッパーダッシュボードでの申請手順
-
-### Step 1: パッケージアップロード
+### Step 1: デベロッパーダッシュボードにログイン
 
 1. https://chrome.google.com/webstore/devconsole を開く
-2. 「新しいアイテム」をクリック
-3. `sf-record-linker.zip` をアップロード
+2. Google アカウントでログイン（初回は $5 の登録料が必要）
 
-### Step 2: ストアの掲載情報
+### Step 2: パッケージアップロード
 
-`docs/store-listing.md` の内容をコピーして入力:
+1. 「新しいアイテム」をクリック
+2. 上記の素材入手先から **sf-record-linker.zip** をダウンロードし、アップロード
+
+### Step 3: ストアの掲載情報
+
+[store-listing.md](https://github.com/SafiePublic/sf-record-linker/blob/main/docs/store-listing.md) を開き、内容をコピーして入力してください。
 
 | フィールド | 入力内容 |
 |-----------|---------|
-| 名前 | SF Record Linker |
-| 概要 | `store-listing.md` の「概要」セクション |
-| 詳細説明 | `store-listing.md` の「詳細説明」セクション |
+| 名前 | `SF Record Linker` |
+| 概要（短い説明） | store-listing.md →「概要（短い説明）」をコピー |
+| 詳細説明 | store-listing.md →「詳細説明」をコピー |
 | カテゴリ | 仕事効率化（Productivity） |
 | 言語 | 日本語（デフォルト）、English |
-| スクリーンショット | `docs/screenshots/` 内の画像をアップロード |
+| ウェブサイト | `https://github.com/SafiePublic/sf-record-linker` |
+| スクリーンショット | 上記の素材入手先からダウンロードした PNG をアップロード |
 
-### Step 3: プライバシーへの取り組み
+### Step 4: プライバシーへの取り組み
 
 | フィールド | 入力内容 |
 |-----------|---------|
-| シングルパーパス | Salesforce Lightning レコードページのリンクをクリップボードにコピーする |
-| 権限の正当性 | 下記参照 |
-| プライバシーポリシー URL | GitHub Pages の URL |
+| シングルパーパス | `Salesforce Lightning レコードページのリンクをクリップボードにコピーする` |
+| 権限の正当性 | 下記の文章をコピー |
+| プライバシーポリシー URL | `https://safiepublic.github.io/sf-record-linker/privacy-policy.html` |
 | データの使用 | 「ユーザーのデータを収集または使用しない」にチェック |
 
-**権限の正当性（審査フォーム記入用）:**
+**権限の正当性（そのままコピーしてください）:**
 
-> This extension uses the following permissions:
->
-> - **clipboardWrite**: Required to copy generated hyperlinks to the user's clipboard.
-> - **storage**: Required to save and sync user-configured copy format settings across devices.
-> - **declarativeContent**: Required to enable the extension icon only on Salesforce Lightning record pages (*.lightning.force.com).
->
-> The extension does not collect, transmit, or store any personal data. All processing occurs entirely within the user's browser.
+```
+This extension uses the following permissions:
 
-### Step 4: 配布設定
+- clipboardWrite: Required to copy generated hyperlinks to the user's clipboard.
+- storage: Required to save and sync user-configured copy format settings across devices.
+- declarativeContent: Required to enable the extension icon only on Salesforce Lightning record pages (*.lightning.force.com).
+
+The extension does not collect, transmit, or store any personal data. All processing occurs entirely within the user's browser.
+```
+
+### Step 5: 配布設定
 
 | フィールド | 設定 |
 |-----------|------|
-| 公開設定 | 公開（一般公開）または 限定公開 |
+| 公開設定 | 公開（一般公開） |
 | 対象地域 | すべての地域 |
 
-### Step 5: 審査に提出
+### Step 6: 審査に提出
 
 「審査のために提出」ボタンをクリック。通常 1〜3 営業日で審査完了。
 
-## 5. 審査後のバージョン更新手順
+---
 
-1. `manifest.json` と `package.json` の `version` を更新
-2. `npm run package` で新しい ZIP を作成
-3. デベロッパーダッシュボードで「パッケージを更新」→ 新しい ZIP をアップロード
-4. 必要に応じてストア掲載情報を更新
-5. 「審査のために提出」
+## バージョン更新手順
+
+開発者がリリースを作成すると、GitHub の [Releases ページ](https://github.com/SafiePublic/sf-record-linker/releases/latest) に新しい ZIP がアップロードされます。
+
+### 開発者（更新依頼する側）がやること
+
+1. コードを修正・コミット
+2. `manifest.json` と `package.json` の `version` を更新
+3. `npm run package` で ZIP を作成
+4. GitHub に新しいタグ・リリースを作成し、ZIP を添付
+5. 情シスに更新を依頼（以下の情報を伝える）:
+   - 新しいバージョン番号（例: v1.5.0）
+   - 変更概要（リリースノートの URL で可）
+   - 掲載テキストの変更有無
+
+### 情シス（ストア更新する側）がやること
+
+1. [最新リリースページ](https://github.com/SafiePublic/sf-record-linker/releases/latest) から新しい ZIP をダウンロード
+2. https://chrome.google.com/webstore/devconsole を開く
+3. SF Record Linker を選択 →「パッケージ」タブ →「新しいパッケージをアップロード」
+4. ダウンロードした ZIP をアップロード
+5. 掲載テキストの変更が必要な場合は [store-listing.md](https://github.com/SafiePublic/sf-record-linker/blob/main/docs/store-listing.md) を確認して更新
+6. 「審査のために提出」
+
+---
 
 ## チェックリスト
 
+### 初回申請
+
 - [ ] デベロッパーアカウント登録済み
-- [ ] コピー動作のスクリーンショットを追加
-- [ ] プライバシーポリシーを GitHub Pages で公開
-- [ ] `npm run package` で ZIP 作成
-- [ ] ストア掲載情報を入力
-- [ ] プライバシー情報を入力
+- [ ] ZIP パッケージをアップロード
+- [ ] ストア掲載情報を入力（名前・概要・詳細説明・カテゴリ・言語・ウェブサイト・スクリーンショット）
+- [ ] プライバシー情報を入力（シングルパーパス・権限の正当性・プライバシーポリシー URL・データの使用）
+- [ ] 配布設定を選択
+- [ ] 審査に提出
+
+### バージョン更新
+
+- [ ] 最新リリースから ZIP をダウンロード
+- [ ] ダッシュボードで新しい ZIP をアップロード
+- [ ] 掲載テキストの変更があれば更新
 - [ ] 審査に提出
