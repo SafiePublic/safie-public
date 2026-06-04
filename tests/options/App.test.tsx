@@ -235,6 +235,58 @@ describe('App', () => {
     expect(toggles[3].checked).toBe(true);
   });
 
+  describe('save button (dirty state)', () => {
+    const saveButton = () => screen.getByText('保存') as HTMLButtonElement;
+
+    it('is disabled when there are no changes (empty initial state)', () => {
+      render(<App />);
+      expect(saveButton().disabled).toBe(true);
+    });
+
+    it('is disabled when loaded settings are unchanged', () => {
+      storageMock.objectSettings = {
+        商品: {
+          enabled: true,
+          mode: 'simple',
+          fieldLabel: '商品コード',
+          showLabel: true,
+          format: '',
+        },
+      };
+      render(<App />);
+      expect(saveButton().disabled).toBe(true);
+    });
+
+    it('becomes enabled after adding a card', () => {
+      render(<App />);
+      fireEvent.click(screen.getByText('+ オブジェクトごとの拡張設定を追加'));
+      expect(saveButton().disabled).toBe(false);
+    });
+
+    it('becomes enabled after toggling a global setting', () => {
+      render(<App />);
+      const toggles = document.querySelectorAll<HTMLInputElement>('.global-settings .toggle-input');
+      fireEvent.change(toggles[0], { target: { checked: true } });
+      expect(saveButton().disabled).toBe(false);
+    });
+
+    it('becomes disabled again after saving', async () => {
+      render(<App />);
+      fireEvent.click(screen.getByText('+ オブジェクトごとの拡張設定を追加'));
+
+      const inputs = document.querySelectorAll<HTMLInputElement>('.input-field');
+      setInputValue(inputs[0], '商品');
+      setInputValue(inputs[1], '商品コード');
+      expect(saveButton().disabled).toBe(false);
+
+      fireEvent.click(saveButton());
+
+      await waitFor(() => {
+        expect(saveButton().disabled).toBe(true);
+      });
+    });
+  });
+
   describe('import', () => {
     function triggerImport(json: string) {
       const fileInput = document.querySelector<HTMLInputElement>('input[type="file"]');
@@ -275,6 +327,9 @@ describe('App', () => {
 
       // 「保存が必要」と分かる Toast が出る
       expect(screen.getByText('設定を読み込みました。「保存」を押すと反映されます')).toBeTruthy();
+
+      // 未確定の変更があるので保存ボタンが活性になる
+      expect((screen.getByText('保存') as HTMLButtonElement).disabled).toBe(false);
     });
 
     it('persists imported settings to chrome.storage only after clicking save', async () => {

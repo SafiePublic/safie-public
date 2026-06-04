@@ -56,6 +56,34 @@ function settingsToCards(settings: ObjectSettings): CardState[] {
     );
 }
 
+// 編集用の CardState[] を保存形式の ObjectSettings に変換する。
+// handleSave と dirty 判定の両方で使う（変換ロジックを一致させるため共通化）。
+function cardsToSettings(cards: CardState[]): ObjectSettings {
+  const objectSettings: ObjectSettings = {};
+  for (const card of cards) {
+    objectSettings[card.objectName.trim()] = {
+      enabled: true,
+      mode: card.mode,
+      fieldLabel: card.fieldLabel.trim(),
+      showLabel: card.showLabel,
+      format: card.format.trim(),
+    };
+  }
+  return objectSettings;
+}
+
+// キー順に依存しないディープ等価判定（設定オブジェクトの比較用）。
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (typeof a !== 'object' || typeof b !== 'object' || a === null || b === null) return false;
+  const aKeys = Object.keys(a as Record<string, unknown>);
+  const bKeys = Object.keys(b as Record<string, unknown>);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((k) =>
+    deepEqual((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k]),
+  );
+}
+
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'load':
@@ -155,20 +183,15 @@ export function App() {
       return;
     }
 
-    const objectSettings: ObjectSettings = {};
-    for (const card of state.cards) {
-      objectSettings[card.objectName.trim()] = {
-        enabled: true,
-        mode: card.mode,
-        fieldLabel: card.fieldLabel.trim(),
-        showLabel: card.showLabel,
-        format: card.format.trim(),
-      };
-    }
-
-    await saveSettings(objectSettings, globalSettings);
+    await saveSettings(cardsToSettings(state.cards), globalSettings);
     showToast(t('options_toast_saved'));
   };
+
+  // 現在の編集内容が保存済みの設定と異なるか（未保存の変更があるか）。
+  // 差分が無いときは保存ボタンを非活性にする。
+  const isDirty =
+    !deepEqual(cardsToSettings(state.cards), storedSettings) ||
+    !deepEqual(globalSettings, storedGlobalSettings);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -230,7 +253,7 @@ export function App() {
               ref={fileInputRef}
               onChange={handleImportFile}
             />
-            <button type="button" class="btn-save" onClick={handleSave}>
+            <button type="button" class="btn-save" onClick={handleSave} disabled={!isDirty}>
               {t('options_btn_save')}
             </button>
           </div>

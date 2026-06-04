@@ -393,6 +393,15 @@ body {
   background: #004999;
 }
 
+.btn-save:disabled {
+  background: #c7ccd1;
+  cursor: default;
+}
+
+.btn-save:disabled:hover {
+  background: #c7ccd1;
+}
+
 /* ── トースト ── */
 .toast {
   position: fixed;
