@@ -1,28 +1,26 @@
+import { queryAcrossFrames, querySelectorInShadowDOM } from './lib/dom-query';
+import { t } from './lib/i18n';
 import {
+  extractFieldLabels,
   formatBasicLink,
   formatExtendedLink,
   formatTemplateLink,
-  extractFieldLabels,
   prefixObjectName,
-} from "./lib/link-formatter";
-import type { ObjectSettings, GlobalSettings } from "./lib/types";
-import { DEFAULT_GLOBAL_SETTINGS } from "./lib/types";
-import { t } from "./lib/i18n";
-import { findReportName } from "./lib/report-name";
-import { querySelectorInShadowDOM, queryAcrossFrames } from "./lib/dom-query";
+} from './lib/link-formatter';
+import { findReportName } from './lib/report-name';
+import type { GlobalSettings, ObjectSettings } from './lib/types';
+import { DEFAULT_GLOBAL_SETTINGS } from './lib/types';
 
-function findRecordNameElement(
-  startEl: Element | Document,
-): HTMLElement | null {
-  const rh2 = querySelectorInShadowDOM(startEl, "records-highlights2");
+function findRecordNameElement(startEl: Element | Document): HTMLElement | null {
+  const rh2 = querySelectorInShadowDOM(startEl, 'records-highlights2');
   if (!rh2) return null;
 
   for (const selector of [
     'lightning-formatted-text[slot="primaryField"]',
-    "lightning-formatted-text",
+    'lightning-formatted-text',
   ]) {
     const el = rh2.querySelector<HTMLElement>(selector);
-    if (el && el.innerText?.trim()) {
+    if (el?.innerText?.trim()) {
       return el;
     }
   }
@@ -31,34 +29,27 @@ function findRecordNameElement(
 
 function getObjectLabel(startEl: Element | Document): string | null {
   const el =
-    querySelectorInShadowDOM(startEl, "records-entity-label") ||
-    querySelectorInShadowDOM(startEl, ".entityNameTitle");
+    querySelectorInShadowDOM(startEl, 'records-entity-label') ||
+    querySelectorInShadowDOM(startEl, '.entityNameTitle');
   if (!el) return null;
   return el.innerText?.trim() || null;
 }
 
 function escapeCSSAttr(str: string): string {
-  return str.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return str.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 }
 
-function getFieldValue(
-  startEl: Element | Document,
-  fieldLabel: string,
-): string | null {
+function getFieldValue(startEl: Element | Document, fieldLabel: string): string | null {
   const item = querySelectorInShadowDOM(
     startEl,
     `records-record-layout-item[field-label="${escapeCSSAttr(fieldLabel)}"]`,
   );
   if (!item) return null;
 
-  const output = item.querySelector<HTMLElement>(
-    "[data-output-element-id='output-field']",
-  );
+  const output = item.querySelector<HTMLElement>("[data-output-element-id='output-field']");
   if (!output) return null;
 
-  const lookupLink = output.querySelector<HTMLElement>(
-    "force-lookup a[data-navigation='enable']",
-  );
+  const lookupLink = output.querySelector<HTMLElement>("force-lookup a[data-navigation='enable']");
   if (lookupLink) return lookupLink.innerText?.trim() || null;
 
   return output.innerText?.trim() || null;
@@ -75,9 +66,13 @@ function buildLink(
     const showObjectName = cachedGlobalSettings.showObjectName;
     const linkNameOnly = cachedGlobalSettings.linkNameOnly;
 
-
     if (!setting?.enabled) {
-      return prefixObjectName(formatBasicLink(recordName, url), objectLabel ?? '', showObjectName, linkNameOnly);
+      return prefixObjectName(
+        formatBasicLink(recordName, url),
+        objectLabel ?? '',
+        showObjectName,
+        linkNameOnly,
+      );
     }
 
     const mode = setting.mode ?? 'simple';
@@ -87,7 +82,13 @@ function buildLink(
       const fieldValues: Record<string, string> = {};
       for (const label of labels) {
         const val = getFieldValue(startEl, label);
-        if (!val) return prefixObjectName(formatBasicLink(recordName, url), objectLabel ?? '', showObjectName, linkNameOnly);
+        if (!val)
+          return prefixObjectName(
+            formatBasicLink(recordName, url),
+            objectLabel ?? '',
+            showObjectName,
+            linkNameOnly,
+          );
         fieldValues[label] = val;
       }
       // カスタムモードでは showObjectName を適用しない
@@ -134,14 +135,15 @@ function detectToastMessages(): string[] {
   if (!container) return [];
 
   const byClass = container.querySelectorAll('div.forceToastMessage');
-  const toastItems = byClass.length > 0
-    ? byClass
-    : container.querySelectorAll('[data-aura-class="forceToastMessage"]');
+  const toastItems =
+    byClass.length > 0
+      ? byClass
+      : container.querySelectorAll('[data-aura-class="forceToastMessage"]');
 
   const messages: string[] = [];
   for (const item of toastItems) {
-    const isError = ERROR_CLASS_PATTERNS.some((cls) =>
-      item.querySelector(`.${cls}`) !== null || item.classList.contains(cls),
+    const isError = ERROR_CLASS_PATTERNS.some(
+      (cls) => item.querySelector(`.${cls}`) !== null || item.classList.contains(cls),
     );
     if (!isError) continue;
 
@@ -156,11 +158,8 @@ function detectToastMessages(): string[] {
 }
 
 function findActiveRecordPage(): Element | Document {
-  const pages = document.querySelectorAll<HTMLElement>(
-    "one-record-home-flexipage2",
-  );
+  const pages = document.querySelectorAll<HTMLElement>('one-record-home-flexipage2');
   if (pages.length === 0) return document;
-  if (pages.length === 1) return pages[0];
 
   // SPA遷移で古いDOMが残る場合、可視状態の要素を選ぶ
   for (const page of pages) {
@@ -170,8 +169,8 @@ function findActiveRecordPage(): Element | Document {
     }
   }
 
-  // フォールバック: 最後の要素（最新の遷移先）
-  return pages[pages.length - 1];
+  // フォールバック: 最後の要素（最新の遷移先）。取得できなければ document
+  return pages[pages.length - 1] ?? document;
 }
 
 let cachedSettings: ObjectSettings = {};
@@ -194,7 +193,12 @@ function getRecordLink(): { success: boolean; html?: string; plain?: string; toa
     const name = findReportName(document, document.title, queryAcrossFrames);
     if (!name) return { success: false };
     const link = formatBasicLink(name, window.location.href);
-    const result = prefixObjectName(link, t("content_reportLabel"), cachedGlobalSettings.showObjectName, cachedGlobalSettings.linkNameOnly);
+    const result = prefixObjectName(
+      link,
+      t('content_reportLabel'),
+      cachedGlobalSettings.showObjectName,
+      cachedGlobalSettings.linkNameOnly,
+    );
     const toasts = cachedGlobalSettings.includeToast ? detectToastMessages() : [];
     return { success: true, ...result, toasts };
   }
@@ -212,29 +216,26 @@ function getRecordLink(): { success: boolean; html?: string; plain?: string; toa
   return { success: true, html: link.html, plain: link.plain, toasts };
 }
 
-async function copyToClipboard(
-  html: string,
-  plain: string,
-): Promise<{ success: boolean }> {
+async function copyToClipboard(html: string, plain: string): Promise<{ success: boolean }> {
   try {
     const clipboardItem = new ClipboardItem({
-      "text/html": new Blob([html], { type: "text/html" }),
-      "text/plain": new Blob([plain], { type: "text/plain" }),
+      'text/html': new Blob([html], { type: 'text/html' }),
+      'text/plain': new Blob([plain], { type: 'text/plain' }),
     });
     await navigator.clipboard.write([clipboardItem]);
     return { success: true };
   } catch (err) {
-    console.error("SF Record Linker: Copy failed", err);
+    console.error('SF Record Linker: Copy failed', err);
     return { success: false };
   }
 }
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.action === "getRecordLink") {
+  if (message.action === 'getRecordLink') {
     sendResponse(getRecordLink());
     return false;
   }
-  if (message.action === "copyToClipboard") {
+  if (message.action === 'copyToClipboard') {
     copyToClipboard(message.html, message.plain).then(sendResponse);
     return true;
   }
@@ -244,7 +245,10 @@ chrome.storage.sync.get(
   { objectSettings: {}, globalSettings: DEFAULT_GLOBAL_SETTINGS },
   (result) => {
     cachedSettings = result.objectSettings as ObjectSettings;
-    cachedGlobalSettings = { ...DEFAULT_GLOBAL_SETTINGS, ...(result.globalSettings as GlobalSettings) };
+    cachedGlobalSettings = {
+      ...DEFAULT_GLOBAL_SETTINGS,
+      ...(result.globalSettings as GlobalSettings),
+    };
   },
 );
 chrome.storage.onChanged.addListener((changes) => {
@@ -252,6 +256,9 @@ chrome.storage.onChanged.addListener((changes) => {
     cachedSettings = changes.objectSettings.newValue as ObjectSettings;
   }
   if (changes.globalSettings) {
-    cachedGlobalSettings = { ...DEFAULT_GLOBAL_SETTINGS, ...(changes.globalSettings.newValue as GlobalSettings) };
+    cachedGlobalSettings = {
+      ...DEFAULT_GLOBAL_SETTINGS,
+      ...(changes.globalSettings.newValue as GlobalSettings),
+    };
   }
 });

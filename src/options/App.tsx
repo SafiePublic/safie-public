@@ -1,24 +1,24 @@
-import { useReducer, useEffect, useState, useRef } from "preact/hooks";
-import type { CardState, ObjectSettings, GlobalSettings, ValidationError } from "../lib/types";
-import { DEFAULT_GLOBAL_SETTINGS } from "../lib/types";
-import { validateCards } from "../lib/validation";
-import { t } from "../lib/i18n";
-import { useChromeStorage } from "./hooks/useChromeStorage";
-import { useToast } from "./hooks/useToast";
-import { ObjectCard } from "./components/ObjectCard";
-import { ObjectList } from "./components/ObjectList";
-import { ViewToggle, type ViewMode } from "./components/ViewToggle";
-import { Toggle } from "./components/Toggle";
-import { Toast } from "./components/Toast";
-import { GlobalPreview } from "./components/Preview";
-import { exportSettings, parseImportData } from "../lib/settings-io";
+import { useEffect, useReducer, useRef, useState } from 'preact/hooks';
+import { t } from '../lib/i18n';
+import { exportSettings, parseImportData } from '../lib/settings-io';
+import type { CardState, GlobalSettings, ObjectSettings, ValidationError } from '../lib/types';
+import { DEFAULT_GLOBAL_SETTINGS } from '../lib/types';
+import { validateCards } from '../lib/validation';
+import { ObjectCard } from './components/ObjectCard';
+import { ObjectList } from './components/ObjectList';
+import { GlobalPreview } from './components/Preview';
+import { Toast } from './components/Toast';
+import { Toggle } from './components/Toggle';
+import { type ViewMode, ViewToggle } from './components/ViewToggle';
+import { useChromeStorage } from './hooks/useChromeStorage';
+import { useToast } from './hooks/useToast';
 
 type Action =
-  | { type: "load"; cards: CardState[] }
-  | { type: "add" }
-  | { type: "remove"; id: string }
-  | { type: "update"; card: CardState }
-  | { type: "setErrors"; errors: ValidationError[]; duplicateObjectNames: string[] };
+  | { type: 'load'; cards: CardState[] }
+  | { type: 'add' }
+  | { type: 'remove'; id: string }
+  | { type: 'update'; card: CardState }
+  | { type: 'setErrors'; errors: ValidationError[]; duplicateObjectNames: string[] };
 
 interface State {
   cards: CardState[];
@@ -31,30 +31,40 @@ let nextId = 1;
 function createCard(overrides: Partial<CardState> = {}): CardState {
   return {
     id: String(nextId++),
-    objectName: "",
-    mode: "simple",
-    fieldLabel: "",
+    objectName: '',
+    mode: 'simple',
+    fieldLabel: '',
     showLabel: true,
-    format: "",
+    format: '',
     ...overrides,
   };
 }
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-    case "load":
+    case 'load':
       return { cards: action.cards, errors: [], duplicateObjectNames: [] };
-    case "add":
-      return { ...state, cards: [...state.cards, createCard()], errors: [], duplicateObjectNames: [] };
-    case "remove":
-      return { ...state, cards: state.cards.filter((c) => c.id !== action.id), errors: [], duplicateObjectNames: [] };
-    case "update":
+    case 'add':
+      return {
+        ...state,
+        cards: [...state.cards, createCard()],
+        errors: [],
+        duplicateObjectNames: [],
+      };
+    case 'remove':
+      return {
+        ...state,
+        cards: state.cards.filter((c) => c.id !== action.id),
+        errors: [],
+        duplicateObjectNames: [],
+      };
+    case 'update':
       return {
         ...state,
         cards: state.cards.map((c) => (c.id === action.card.id ? action.card : c)),
         errors: state.errors.filter((e) => e.cardId !== action.card.id),
       };
-    case "setErrors":
+    case 'setErrors':
       return { ...state, errors: action.errors, duplicateObjectNames: action.duplicateObjectNames };
   }
 }
@@ -65,7 +75,7 @@ export function App() {
   const [globalSettings, setGlobalSettings] = useState<GlobalSettings>({
     ...DEFAULT_GLOBAL_SETTINGS,
   });
-  const [viewMode, setViewMode] = useState<ViewMode>("card");
+  const [viewMode, setViewMode] = useState<ViewMode>('card');
   const [state, dispatch] = useReducer(reducer, {
     cards: [],
     errors: [],
@@ -74,15 +84,15 @@ export function App() {
 
   // ページタイトルと言語を動的に設定
   useEffect(() => {
-    document.title = t("options_pageTitle");
+    document.title = t('options_pageTitle');
     document.documentElement.lang = chrome.i18n.getUILanguage();
   }, []);
 
   // chrome.storage.local からビュー設定を復元
   useEffect(() => {
     try {
-      chrome.storage.local.get({ viewMode: "card" }, (result) => {
-        if (result.viewMode === "card" || result.viewMode === "list") {
+      chrome.storage.local.get({ viewMode: 'card' }, (result) => {
+        if (result.viewMode === 'card' || result.viewMode === 'list') {
           setViewMode(result.viewMode);
         }
       });
@@ -114,28 +124,28 @@ export function App() {
       .map(([key, val]) =>
         createCard({
           objectName: key,
-          mode: val.mode ?? "simple",
+          mode: val.mode ?? 'simple',
           fieldLabel: val.fieldLabel,
           showLabel: val.showLabel,
           format: val.format,
         }),
       );
-    dispatch({ type: "load", cards });
+    dispatch({ type: 'load', cards });
   }, [storedSettings]);
 
   const handleSave = async () => {
     const result = validateCards(state.cards);
     if (!result.valid) {
       dispatch({
-        type: "setErrors",
+        type: 'setErrors',
         errors: result.errors,
         duplicateObjectNames: result.duplicateObjectNames,
       });
 
       if (result.duplicateObjectNames.length > 0) {
-        showToast(t("options_toast_duplicateObject"));
+        showToast(t('options_toast_duplicateObject'));
       } else {
-        showToast(t("options_toast_validationError"));
+        showToast(t('options_toast_validationError'));
       }
       return;
     }
@@ -152,18 +162,18 @@ export function App() {
     }
 
     await saveSettings(objectSettings, globalSettings);
-    showToast(t("options_toast_saved"));
+    showToast(t('options_toast_saved'));
   };
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
     const json = exportSettings(storedSettings, storedGlobalSettings);
-    const blob = new Blob([json], { type: "application/json" });
+    const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
+    const a = document.createElement('a');
     a.href = url;
-    a.download = "sf-record-linker-settings.json";
+    a.download = 'sf-record-linker-settings.json';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -184,79 +194,88 @@ export function App() {
     }
 
     await saveSettings(result.objectSettings, result.globalSettings);
-    showToast(t("options_toast_imported"));
+    showToast(t('options_toast_imported'));
 
     // ファイル入力をリセット（同じファイルの再選択を許可）
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
-  const errorsForCard = (id: string) =>
-    state.errors.filter((e) => e.cardId === id);
+  const errorsForCard = (id: string) => state.errors.filter((e) => e.cardId === id);
 
   return (
     <>
       <div class="page-header">
         <div class="page-header-row">
-          <h1>{t("options_pageTitle")}</h1>
+          <h1>{t('options_pageTitle')}</h1>
           <div class="header-actions">
-            <button class="btn-secondary" onClick={handleExport}>{t("options_btn_export")}</button>
-            <button class="btn-secondary" onClick={handleImportClick}>{t("options_btn_import")}</button>
-            <input type="file" accept=".json" style={{ display: 'none' }} ref={fileInputRef} onChange={handleImportFile} />
-            <button class="btn-save" onClick={handleSave}>{t("options_btn_save")}</button>
+            <button type="button" class="btn-secondary" onClick={handleExport}>
+              {t('options_btn_export')}
+            </button>
+            <button type="button" class="btn-secondary" onClick={handleImportClick}>
+              {t('options_btn_import')}
+            </button>
+            <input
+              type="file"
+              accept=".json"
+              style={{ display: 'none' }}
+              ref={fileInputRef}
+              onChange={handleImportFile}
+            />
+            <button type="button" class="btn-save" onClick={handleSave}>
+              {t('options_btn_save')}
+            </button>
           </div>
         </div>
-        <p>{t("options_description")}</p>
+        <p>{t('options_description')}</p>
       </div>
 
       <div class="global-settings">
-        <div class="global-settings-heading">{t("options_globalHeading")}</div>
+        <div class="global-settings-heading">{t('options_globalHeading')}</div>
         <Toggle
-          label={t("options_toggle_showObjectName")}
+          label={t('options_toggle_showObjectName')}
           checked={globalSettings.showObjectName}
-          onChange={(showObjectName) =>
-            setGlobalSettings((prev) => ({ ...prev, showObjectName }))
-          }
+          onChange={(showObjectName) => setGlobalSettings((prev) => ({ ...prev, showObjectName }))}
         />
         <Toggle
-          label={t("options_toggle_linkNameOnly")}
+          label={t('options_toggle_linkNameOnly')}
           checked={globalSettings.linkNameOnly}
-          onChange={(linkNameOnly) =>
-            setGlobalSettings((prev) => ({ ...prev, linkNameOnly }))
-          }
+          onChange={(linkNameOnly) => setGlobalSettings((prev) => ({ ...prev, linkNameOnly }))}
         />
         <Toggle
-          label={t("options_toggle_includeToast")}
+          label={t('options_toggle_includeToast')}
           checked={globalSettings.includeToast}
-          onChange={(includeToast) =>
-            setGlobalSettings((prev) => ({ ...prev, includeToast }))
-          }
+          onChange={(includeToast) => setGlobalSettings((prev) => ({ ...prev, includeToast }))}
         />
         <Toggle
-          label={t("options_toggle_bulletList")}
+          label={t('options_toggle_bulletList')}
           checked={globalSettings.bulletList}
-          onChange={(bulletList) =>
-            setGlobalSettings((prev) => ({ ...prev, bulletList }))
-          }
+          onChange={(bulletList) => setGlobalSettings((prev) => ({ ...prev, bulletList }))}
         />
         {globalSettings.bulletList && (
           <>
             <div class="segment-control" style={{ marginTop: '-4px' }}>
               <button
+                type="button"
                 class={`segment-btn ${globalSettings.bulletStyle === 'ul' ? 'active' : ''}`}
-                onClick={() => setGlobalSettings((prev) => ({ ...prev, bulletStyle: 'ul' as const }))}
+                onClick={() =>
+                  setGlobalSettings((prev) => ({ ...prev, bulletStyle: 'ul' as const }))
+                }
               >
-                {t("options_bullet_ul")}
+                {t('options_bullet_ul')}
               </button>
               <button
+                type="button"
                 class={`segment-btn ${globalSettings.bulletStyle === 'custom' ? 'active' : ''}`}
-                onClick={() => setGlobalSettings((prev) => ({ ...prev, bulletStyle: 'custom' as const }))}
+                onClick={() =>
+                  setGlobalSettings((prev) => ({ ...prev, bulletStyle: 'custom' as const }))
+                }
               >
-                {t("options_bullet_custom")}
+                {t('options_bullet_custom')}
               </button>
             </div>
             {globalSettings.bulletStyle === 'custom' && (
               <div class="field-group" style={{ marginBottom: '16px' }}>
-                <label>{t("options_label_bulletChar")}</label>
+                <label>{t('options_label_bulletChar')}</label>
                 <input
                   class="input-field"
                   style={{ width: '80px' }}
@@ -284,12 +303,12 @@ export function App() {
 
       {state.cards.length > 0 && (
         <div class="section-header">
-          <span class="section-header-label">{t("options_sectionObjectSettings")}</span>
+          <span class="section-header-label">{t('options_sectionObjectSettings')}</span>
           <ViewToggle mode={viewMode} onChange={handleViewModeChange} />
         </div>
       )}
 
-      {viewMode === "card" ? (
+      {viewMode === 'card' ? (
         <div id="cards">
           {state.cards.map((card) => (
             <ObjectCard
@@ -298,8 +317,8 @@ export function App() {
               errors={errorsForCard(card.id)}
               linkNameOnly={globalSettings.linkNameOnly}
               showObjectName={globalSettings.showObjectName}
-              onChange={(updated) => dispatch({ type: "update", card: updated })}
-              onRemove={() => dispatch({ type: "remove", id: card.id })}
+              onChange={(updated) => dispatch({ type: 'update', card: updated })}
+              onRemove={() => dispatch({ type: 'remove', id: card.id })}
             />
           ))}
         </div>
@@ -309,13 +328,13 @@ export function App() {
           errors={state.errors}
           linkNameOnly={globalSettings.linkNameOnly}
           showObjectName={globalSettings.showObjectName}
-          onChange={(updated) => dispatch({ type: "update", card: updated })}
-          onRemove={(id) => dispatch({ type: "remove", id })}
+          onChange={(updated) => dispatch({ type: 'update', card: updated })}
+          onRemove={(id) => dispatch({ type: 'remove', id })}
         />
       )}
 
-      <button class="btn-add" onClick={() => dispatch({ type: "add" })}>
-        {t("options_btn_addObject")}
+      <button type="button" class="btn-add" onClick={() => dispatch({ type: 'add' })}>
+        {t('options_btn_addObject')}
       </button>
 
       <Toast message={toastMessage} visible={toastVisible} />

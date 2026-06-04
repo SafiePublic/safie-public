@@ -1,6 +1,6 @@
-import { useState, useEffect } from "preact/hooks";
-import type { ObjectSettings, GlobalSettings } from "../../lib/types";
-import { DEFAULT_GLOBAL_SETTINGS } from "../../lib/types";
+import { useEffect, useState } from 'preact/hooks';
+import type { GlobalSettings, ObjectSettings } from '../../lib/types';
+import { DEFAULT_GLOBAL_SETTINGS } from '../../lib/types';
 
 export function useChromeStorage(): [
   ObjectSettings,
@@ -17,7 +17,10 @@ export function useChromeStorage(): [
       { objectSettings: {}, globalSettings: DEFAULT_GLOBAL_SETTINGS },
       (result) => {
         setSettings(result.objectSettings as ObjectSettings);
-        setGlobalSettings({ ...DEFAULT_GLOBAL_SETTINGS, ...(result.globalSettings as GlobalSettings) });
+        setGlobalSettings({
+          ...DEFAULT_GLOBAL_SETTINGS,
+          ...(result.globalSettings as GlobalSettings),
+        });
       },
     );
 
@@ -26,17 +29,17 @@ export function useChromeStorage(): [
         setSettings(changes.objectSettings.newValue as ObjectSettings);
       }
       if (changes.globalSettings) {
-        setGlobalSettings({ ...DEFAULT_GLOBAL_SETTINGS, ...(changes.globalSettings.newValue as GlobalSettings) });
+        setGlobalSettings({
+          ...DEFAULT_GLOBAL_SETTINGS,
+          ...(changes.globalSettings.newValue as GlobalSettings),
+        });
       }
     };
     chrome.storage.onChanged.addListener(listener);
     return () => chrome.storage.onChanged.removeListener(listener);
   }, []);
 
-  const save = (
-    newSettings: ObjectSettings,
-    newGlobalSettings: GlobalSettings,
-  ): Promise<void> => {
+  const save = (newSettings: ObjectSettings, newGlobalSettings: GlobalSettings): Promise<void> => {
     return new Promise((resolve) => {
       chrome.storage.sync.set(
         { objectSettings: newSettings, globalSettings: newGlobalSettings },

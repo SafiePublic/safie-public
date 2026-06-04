@@ -1,6 +1,6 @@
-import { t } from "../../lib/i18n";
+import { t } from '../../lib/i18n';
 
-export type ViewMode = "card" | "list";
+export type ViewMode = 'card' | 'list';
 
 interface ViewToggleProps {
   mode: ViewMode;
@@ -12,17 +12,17 @@ export function ViewToggle({ mode, onChange }: ViewToggleProps) {
     <div class="view-toggle">
       <button
         type="button"
-        class={`view-toggle-btn${mode === "card" ? " active" : ""}`}
-        onClick={() => onChange("card")}
+        class={`view-toggle-btn${mode === 'card' ? ' active' : ''}`}
+        onClick={() => onChange('card')}
       >
-        {t("options_viewToggle_card")}
+        {t('options_viewToggle_card')}
       </button>
       <button
         type="button"
-        class={`view-toggle-btn${mode === "list" ? " active" : ""}`}
-        onClick={() => onChange("list")}
+        class={`view-toggle-btn${mode === 'list' ? ' active' : ''}`}
+        onClick={() => onChange('list')}
       >
-        {t("options_viewToggle_list")}
+        {t('options_viewToggle_list')}
       </button>
     </div>
   );
