@@ -31,7 +31,7 @@ export type MessageKey =
   | "options_form_help_nameVar"
   | "options_form_help_objectVar"
   | "options_form_help_fieldVar"
-  | "options_form_help_fieldVarExample"
+  | "options_form_help_fieldName"
   | "options_segment_simple"
   | "options_segment_custom"
   | "options_viewToggle_card"

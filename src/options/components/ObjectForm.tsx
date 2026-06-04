@@ -64,11 +64,17 @@ export function ObjectForm({ card, errors, linkNameOnly, showObjectName, onChang
             placeholder={t("options_form_placeholder_format")}
             onInput={(e) => update({ format: (e.target as HTMLInputElement).value })}
           />
-          <div class="help-text">
-            <code>{"${name}"}</code> {t("options_form_help_nameVar")} / <code>{"${object}"}</code> {t("options_form_help_objectVar")}
-            <br />
-            <code>{t("options_form_help_fieldVarExample")}</code> {t("options_form_help_fieldVar")}
-          </div>
+          <ul class="help-text format-help-list">
+            <li>
+              <code>{"${name}"}</code> : {t("options_form_help_nameVar")}
+            </li>
+            <li>
+              <code>{"${object}"}</code> : {t("options_form_help_objectVar")}
+            </li>
+            <li>
+              <code>{"${"}{t("options_form_help_fieldName")}{"}"}</code> : {t("options_form_help_fieldVar")}
+            </li>
+          </ul>
         </div>
       </div>
 

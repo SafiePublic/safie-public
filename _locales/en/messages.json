@@ -87,19 +87,19 @@
     "message": "Format"
   },
   "options_form_placeholder_format": {
-    "message": "e.g. ${name}(${Product Code})"
+    "message": "e.g. $${name}($${Product Code})"
   },
   "options_form_help_nameVar": {
-    "message": "record name"
+    "message": "the record name"
   },
   "options_form_help_objectVar": {
-    "message": "object name"
+    "message": "the object name"
   },
   "options_form_help_fieldVar": {
-    "message": "to reference any field value"
+    "message": "the field's value"
   },
-  "options_form_help_fieldVarExample": {
-    "message": "${Field Label}"
+  "options_form_help_fieldName": {
+    "message": "Field Label"
   },
 
   "options_segment_simple": {

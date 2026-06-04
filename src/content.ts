@@ -8,29 +8,8 @@ import {
 import type { ObjectSettings, GlobalSettings } from "./lib/types";
 import { DEFAULT_GLOBAL_SETTINGS } from "./lib/types";
 import { t } from "./lib/i18n";
-
-function querySelectorInShadowDOM(
-  root: Document | ShadowRoot | Element,
-  selector: string,
-  maxDepth = 10,
-): HTMLElement | null {
-  const el = root.querySelector<HTMLElement>(selector);
-  if (el) return el;
-  if (maxDepth <= 0) return null;
-
-  const elements = root.querySelectorAll("*");
-  for (const element of elements) {
-    if (element.shadowRoot) {
-      const found = querySelectorInShadowDOM(
-        element.shadowRoot,
-        selector,
-        maxDepth - 1,
-      );
-      if (found) return found;
-    }
-  }
-  return null;
-}
+import { findReportName } from "./lib/report-name";
+import { querySelectorInShadowDOM, queryAcrossFrames } from "./lib/dom-query";
 
 function findRecordNameElement(
   startEl: Element | Document,
@@ -207,29 +186,12 @@ function detectPageType(): PageType {
   return 'unknown';
 }
 
-function findReportName(): string | null {
-  // DOM から取得（優先）
-  const titleEl = document.querySelector<HTMLElement>('.slds-page-header__title');
-  if (titleEl) {
-    const name = titleEl.innerText?.trim();
-    if (name) return name;
-  }
-
-  // フォールバック: document.title
-  const title = document.title;
-  if (title?.includes(' | Salesforce')) {
-    const name = title.replace(/ \| Salesforce$/, '').trim();
-    if (name) return name;
-  }
-  return title?.trim() || null;
-}
-
 function getRecordLink(): { success: boolean; html?: string; plain?: string; toasts?: string[] } {
   const pageType = detectPageType();
   if (pageType === 'unknown') return { success: false };
 
   if (pageType === 'report') {
-    const name = findReportName();
+    const name = findReportName(document, document.title, queryAcrossFrames);
     if (!name) return { success: false };
     const link = formatBasicLink(name, window.location.href);
     const result = prefixObjectName(link, t("content_reportLabel"), cachedGlobalSettings.showObjectName, cachedGlobalSettings.linkNameOnly);

@@ -87,19 +87,19 @@
     "message": "フォーマット"
   },
   "options_form_placeholder_format": {
-    "message": "例: ${name}(${商品コード})"
+    "message": "例: $${name}($${商品コード})"
   },
   "options_form_help_nameVar": {
-    "message": "レコード名"
+    "message": "レコード名に置換"
   },
   "options_form_help_objectVar": {
-    "message": "オブジェクト名"
+    "message": "オブジェクト名に置換"
   },
   "options_form_help_fieldVar": {
-    "message": "で任意の項目値を参照できます"
+    "message": "対象項目の値に置換"
   },
-  "options_form_help_fieldVarExample": {
-    "message": "${項目ラベル名}"
+  "options_form_help_fieldName": {
+    "message": "項目ラベル名"
   },
 
   "options_segment_simple": {
