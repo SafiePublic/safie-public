@@ -52,7 +52,7 @@
     "message": "設定を保存しました"
   },
   "options_toast_imported": {
-    "message": "設定をインポートしました"
+    "message": "設定を読み込みました。「保存」を押すと反映されます"
   },
   "options_toast_duplicateObject": {
     "message": "オブジェクト名が重複しています"

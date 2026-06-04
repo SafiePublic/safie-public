@@ -52,7 +52,7 @@
     "message": "Settings saved"
   },
   "options_toast_imported": {
-    "message": "Settings imported"
+    "message": "Settings loaded. Click \"Save\" to apply"
   },
   "options_toast_duplicateObject": {
     "message": "Duplicate object names found"
