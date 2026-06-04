@@ -40,6 +40,22 @@ function createCard(overrides: Partial<CardState> = {}): CardState {
   };
 }
 
+// ObjectSettings（storage 形式）を編集用の CardState[] に変換する。
+// enabled なエントリのみカード化する。
+function settingsToCards(settings: ObjectSettings): CardState[] {
+  return Object.entries(settings)
+    .filter(([, val]) => val.enabled)
+    .map(([key, val]) =>
+      createCard({
+        objectName: key,
+        mode: val.mode ?? 'simple',
+        fieldLabel: val.fieldLabel,
+        showLabel: val.showLabel,
+        format: val.format,
+      }),
+    );
+}
+
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case 'load':
@@ -119,18 +135,7 @@ export function App() {
     if (entries.length === 0 && state.cards.length > 0) return;
     if (entries.length === 0) return;
 
-    const cards = entries
-      .filter(([, val]) => val.enabled)
-      .map(([key, val]) =>
-        createCard({
-          objectName: key,
-          mode: val.mode ?? 'simple',
-          fieldLabel: val.fieldLabel,
-          showLabel: val.showLabel,
-          format: val.format,
-        }),
-      );
-    dispatch({ type: 'load', cards });
+    dispatch({ type: 'load', cards: settingsToCards(storedSettings) });
   }, [storedSettings]);
 
   const handleSave = async () => {
@@ -193,7 +198,11 @@ export function App() {
       return;
     }
 
-    await saveSettings(result.objectSettings, result.globalSettings);
+    // インポート結果は chrome.storage へ直接書かず、編集用のローカル state へ反映する。
+    // 他の編集操作と同様、「保存」ボタンを押すまで確定しない（誤インポートの取り消し・
+    // 内容確認を可能にし、未保存編集が storage 同期で消える事故も防ぐ）。
+    setGlobalSettings(result.globalSettings);
+    dispatch({ type: 'load', cards: settingsToCards(result.objectSettings) });
     showToast(t('options_toast_imported'));
 
     // ファイル入力をリセット（同じファイルの再選択を許可）
