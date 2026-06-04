@@ -1,0 +1,37 @@
+<!--
+  Salesforce Lightning レポート実行ページのヘッダー部分のサンプル DOM。
+  新しいレポートランタイム（dashboard-container 系）の実物から採取。
+  findReportName のセレクタ検証用フィクスチャ。
+
+  ポイント:
+  - h1 直下の先頭 span はレポートタイプ名（「レポート: ...」）でレポート名ではない
+  - 実際のレポート名は .slds-page-header__title（title 属性に完全名を保持）
+-->
+<div class="dashboard-container with-header">
+  <div class="slds-page-header report-header">
+    <div class="slds-page-header__row">
+      <div class="slds-page-header__col-title">
+        <div class="slds-media">
+          <div class="slds-media__figure">
+            <span class="slds-icon_container slds-icon-standard-report">
+              <span class="slds-assistive-text">レポート: Invoice Itemとサブスクリプションが関連するInvoice</span>
+            </span>
+          </div>
+          <div class="slds-media__body">
+            <div class="slds-page-header__name">
+              <div class="slds-page-header__name-title">
+                <h1>
+                  <span>レポート: Invoice Itemとサブスクリプションが関連するInvoice</span>
+                  <span class="slds-page-header__title slds-truncate" title="【Zuora請求項目】適用済み取次手数料マスター条件不一致">【Zuora請求項目】適用済み取次手数料マスター条件不一致</span>
+                </h1>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slds-page-header__row">
+      <div class="slds-page-header__col-meta"></div>
+    </div>
+  </div>
+</div>
