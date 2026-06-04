@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SF Record Linker",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "default_locale": "ja",
   "description": "__MSG_manifest_description__",
   "icons": {
