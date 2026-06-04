@@ -4,8 +4,9 @@
 import type { ShadowQuery } from "./dom-query";
 export type { ShadowQuery };
 
-// 新しいレポートランタイム（dashboard-container 系）はヘッダーを Shadow DOM 内に描画する
-// ことがあり、document.querySelector では取得できない。Shadow DOM を横断して探索する。
+// 新しいレポートランタイム（dashboard-container 系）はレポート本体を同一オリジンの
+// iframe（lightningReportApp.app）内に描画するため、トップフレームの document.querySelector
+// では取得できない。query には iframe / Shadow DOM 横断探索（queryAcrossFrames）を注入する。
 // h1 直下にはレポートタイプ名の span も存在するため、.slds-page-header__title を明示的に狙う。
 const REPORT_TITLE_SELECTORS = [
   ".report-header .slds-page-header__title",
