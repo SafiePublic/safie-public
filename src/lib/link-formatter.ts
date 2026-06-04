@@ -1,4 +1,4 @@
-import { t } from "./i18n";
+import { t } from './i18n';
 
 export interface LinkResult {
   html: string;
@@ -21,9 +21,7 @@ export function formatExtendedLink(
   showLabel: boolean,
   linkNameOnly = true,
 ): LinkResult {
-  const suffix = showLabel
-    ? `(${fieldLabel}:${fieldValue})`
-    : `(${fieldValue})`;
+  const suffix = showLabel ? `(${fieldLabel}:${fieldValue})` : `(${fieldValue})`;
   const displayText = `${recordName}${suffix}`;
 
   if (linkNameOnly) {
@@ -48,8 +46,9 @@ export function extractFieldLabels(format: string): string[] {
   const matches = format.matchAll(/\$\{([^}]+)\}/g);
   const labels = new Set<string>();
   for (const m of matches) {
-    if (!BUILTIN_VARS.has(m[1])) {
-      labels.add(m[1]);
+    const label = m[1];
+    if (label && !BUILTIN_VARS.has(label)) {
+      labels.add(label);
     }
   }
   return [...labels];
@@ -81,7 +80,7 @@ export function formatTemplateLink(
     const parts = expandedFormat.split('${name}');
     const escapedName = escapeHtml(recordName);
     const linkedName = `<a href="${escapeHtml(url)}">${escapedName}</a>`;
-    const html = parts.map(p => escapeHtml(p)).join(linkedName);
+    const html = parts.map((p) => escapeHtml(p)).join(linkedName);
 
     return { html, plain: displayText };
   }
@@ -121,34 +120,35 @@ export interface BulletConfig {
 }
 
 export function joinLinks(links: LinkResult[], bullet: BulletConfig): LinkResult {
-  if (links.length === 1) return links[0];
+  const [first] = links;
+  if (links.length === 1 && first) return first;
   if (!bullet.enabled) {
     return {
-      html: links.map((l) => `<div>${l.html}</div>`).join(""),
-      plain: links.map((l) => l.plain).join("\n"),
+      html: links.map((l) => `<div>${l.html}</div>`).join(''),
+      plain: links.map((l) => l.plain).join('\n'),
     };
   }
   if (bullet.style === 'ul') {
     return {
-      html: '<meta charset="utf-8"><div><ul>' + links.map((l) => `<li>${l.html}</li>`).join("") + "</ul></div>",
-      plain: links.map((l) => `- ${l.plain}`).join("\n"),
+      html:
+        '<meta charset="utf-8"><div><ul>' +
+        links.map((l) => `<li>${l.html}</li>`).join('') +
+        '</ul></div>',
+      plain: links.map((l) => `- ${l.plain}`).join('\n'),
     };
   }
   // custom style
   const ch = bullet.char;
   return {
-    html: links.map((l) => `<div>${escapeHtml(ch)}${l.html}</div>`).join(""),
-    plain: links.map((l) => `${ch}${l.plain}`).join("\n"),
+    html: links.map((l) => `<div>${escapeHtml(ch)}${l.html}</div>`).join(''),
+    plain: links.map((l) => `${ch}${l.plain}`).join('\n'),
   };
 }
 
-export function appendToastMessages(
-  link: LinkResult,
-  toasts: string[],
-): LinkResult {
+export function appendToastMessages(link: LinkResult, toasts: string[]): LinkResult {
   if (toasts.length === 0) return link;
 
-  const suffix = toasts.map((msg) => `${t("lib_linkFormatter_errorPrefix")}${msg}`).join(" / ");
+  const suffix = toasts.map((msg) => `${t('lib_linkFormatter_errorPrefix')}${msg}`).join(' / ');
 
   return {
     html: `${link.html} / <span style="color:#c23934">${escapeHtml(suffix)}</span>`,
@@ -158,9 +158,9 @@ export function appendToastMessages(
 
 export function escapeHtml(str: string): string {
   return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }

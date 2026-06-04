@@ -4,5 +4,7 @@
 *.zip
 node_modules/
 dist/
-.claude/
+# .claude は settings.json（チーム共有のhook設定）をコミットするため、個人設定のみ除外
+.claude/settings.local.json
+.claude/agents/
 .sfdx/

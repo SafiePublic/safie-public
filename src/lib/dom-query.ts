@@ -14,14 +14,10 @@ export function querySelectorInShadowDOM(
   if (el) return el;
   if (maxDepth <= 0) return null;
 
-  const elements = root.querySelectorAll("*");
+  const elements = root.querySelectorAll('*');
   for (const element of elements) {
     if (element.shadowRoot) {
-      const found = querySelectorInShadowDOM(
-        element.shadowRoot,
-        selector,
-        maxDepth - 1,
-      );
+      const found = querySelectorInShadowDOM(element.shadowRoot, selector, maxDepth - 1);
       if (found) return found;
     }
   }
@@ -36,7 +32,7 @@ export const queryAcrossFrames: ShadowQuery = (root, selector) => {
   const direct = querySelectorInShadowDOM(root, selector);
   if (direct) return direct;
 
-  const frames = root.querySelectorAll("iframe");
+  const frames = root.querySelectorAll('iframe');
   for (const frame of Array.from(frames)) {
     let doc: Document | null = null;
     try {

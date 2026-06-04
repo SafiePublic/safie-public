@@ -1,6 +1,6 @@
-import type { CardState, ValidationError } from "../../lib/types";
-import { t } from "../../lib/i18n";
-import { ObjectForm } from "./ObjectForm";
+import { t } from '../../lib/i18n';
+import type { CardState, ValidationError } from '../../lib/types';
+import { ObjectForm } from './ObjectForm';
 
 interface ObjectCardProps {
   card: CardState;
@@ -11,15 +11,22 @@ interface ObjectCardProps {
   onRemove: () => void;
 }
 
-export function ObjectCard({ card, errors, linkNameOnly, showObjectName, onChange, onRemove }: ObjectCardProps) {
+export function ObjectCard({
+  card,
+  errors,
+  linkNameOnly,
+  showObjectName,
+  onChange,
+  onRemove,
+}: ObjectCardProps) {
   const hasError = errors.length > 0;
 
   return (
-    <div class={`card${hasError ? " error" : ""}`}>
+    <div class={`card${hasError ? ' error' : ''}`}>
       <div class="card-header">
-        <span class="card-header-label">{t("options_card_heading")}</span>
-        <button class="btn-remove" onClick={onRemove}>
-          {t("options_card_btn_remove")}
+        <span class="card-header-label">{t('options_card_heading')}</span>
+        <button type="button" class="btn-remove" onClick={onRemove}>
+          {t('options_card_btn_remove')}
         </button>
       </div>
 

@@ -1,4 +1,4 @@
-import type { CardState, ValidationResult } from "./types";
+import type { CardState, ValidationResult } from './types';
 
 export function checkDuplicateObjectNames(cards: CardState[]): string[] {
   const seen = new Set<string>();
@@ -14,30 +14,30 @@ export function checkDuplicateObjectNames(cards: CardState[]): string[] {
 }
 
 export function validateCards(cards: CardState[]): ValidationResult {
-  const errors: ValidationResult["errors"] = [];
+  const errors: ValidationResult['errors'] = [];
   const duplicateObjectNames = checkDuplicateObjectNames(cards);
 
   for (const card of cards) {
     if (!card.objectName.trim()) {
-      errors.push({ cardId: card.id, field: "objectName" });
+      errors.push({ cardId: card.id, field: 'objectName' });
     }
 
-    if (card.mode === "simple") {
+    if (card.mode === 'simple') {
       if (!card.fieldLabel.trim()) {
-        errors.push({ cardId: card.id, field: "fieldLabel" });
+        errors.push({ cardId: card.id, field: 'fieldLabel' });
       }
     } else {
       if (!card.format.trim()) {
-        errors.push({ cardId: card.id, field: "format" });
+        errors.push({ cardId: card.id, field: 'format' });
       }
     }
 
     if (duplicateObjectNames.includes(card.objectName.trim())) {
       const alreadyHasObjectNameError = errors.some(
-        (e) => e.cardId === card.id && e.field === "objectName",
+        (e) => e.cardId === card.id && e.field === 'objectName',
       );
       if (!alreadyHasObjectNameError) {
-        errors.push({ cardId: card.id, field: "objectName" });
+        errors.push({ cardId: card.id, field: 'objectName' });
       }
     }
   }

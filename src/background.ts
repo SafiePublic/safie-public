@@ -1,6 +1,6 @@
-import { joinLinks, appendToastMessages } from "./lib/link-formatter";
-import type { GlobalSettings } from "./lib/types";
-import { DEFAULT_GLOBAL_SETTINGS } from "./lib/types";
+import { appendToastMessages, joinLinks } from './lib/link-formatter';
+import type { GlobalSettings } from './lib/types';
+import { DEFAULT_GLOBAL_SETTINGS } from './lib/types';
 
 chrome.runtime.onInstalled.addListener(() => {
   chrome.action.disable();
@@ -10,8 +10,8 @@ chrome.runtime.onInstalled.addListener(() => {
         conditions: [
           new chrome.declarativeContent.PageStateMatcher({
             pageUrl: {
-              hostSuffix: ".lightning.force.com",
-              pathContains: "/lightning/r/",
+              hostSuffix: '.lightning.force.com',
+              pathContains: '/lightning/r/',
             },
           }),
         ],
@@ -22,12 +22,12 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 function setBadge(tabId: number, success: boolean): void {
-  const text = success ? "\u2713" : "\u2717";
-  const color = success ? "#4CAF50" : "#F44336";
+  const text = success ? '\u2713' : '\u2717';
+  const color = success ? '#4CAF50' : '#F44336';
   chrome.action.setBadgeText({ text, tabId });
   chrome.action.setBadgeBackgroundColor({ color, tabId });
   setTimeout(() => {
-    chrome.action.setBadgeText({ text: "", tabId });
+    chrome.action.setBadgeText({ text: '', tabId });
   }, 2000);
 }
 
@@ -40,14 +40,14 @@ chrome.action.onClicked.addListener(async (tab) => {
       highlighted: true,
     });
 
-    const targets = highlighted.filter((t) => t.id != null);
+    const targets = highlighted.filter((t): t is chrome.tabs.Tab & { id: number } => t.id != null);
     if (targets.length === 0) return;
 
     const results = await Promise.all(
       targets.map(async (t) => {
         try {
-          return await chrome.tabs.sendMessage(t.id!, {
-            action: "getRecordLink",
+          return await chrome.tabs.sendMessage(t.id, {
+            action: 'getRecordLink',
           });
         } catch {
           return { success: false };
@@ -65,9 +65,9 @@ chrome.action.onClicked.addListener(async (tab) => {
       return;
     }
 
-    const stored = await chrome.storage.sync.get({
+    const stored = (await chrome.storage.sync.get({
       globalSettings: DEFAULT_GLOBAL_SETTINGS,
-    }) as { globalSettings: GlobalSettings };
+    })) as { globalSettings: GlobalSettings };
     const globalSettings = { ...DEFAULT_GLOBAL_SETTINGS, ...stored.globalSettings };
 
     const bullet = {
@@ -84,13 +84,13 @@ chrome.action.onClicked.addListener(async (tab) => {
     const { html, plain } = joinLinks(links, bullet);
 
     const response = await chrome.tabs.sendMessage(tab.id, {
-      action: "copyToClipboard",
+      action: 'copyToClipboard',
       html,
       plain,
     });
 
     setBadge(tab.id, response?.success === true);
   } catch {
-    setBadge(tab.id!, false);
+    setBadge(tab.id, false);
   }
 });

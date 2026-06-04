@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "preact/hooks";
-import type { CardState, ValidationError } from "../../lib/types";
-import { t } from "../../lib/i18n";
-import { ObjectListRow } from "./ObjectListRow";
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { t } from '../../lib/i18n';
+import type { CardState, ValidationError } from '../../lib/types';
+import { ObjectListRow } from './ObjectListRow';
 
 interface ObjectListProps {
   cards: CardState[];
@@ -12,7 +12,14 @@ interface ObjectListProps {
   onRemove: (id: string) => void;
 }
 
-export function ObjectList({ cards, errors, linkNameOnly, showObjectName, onChange, onRemove }: ObjectListProps) {
+export function ObjectList({
+  cards,
+  errors,
+  linkNameOnly,
+  showObjectName,
+  onChange,
+  onRemove,
+}: ObjectListProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const prevCountRef = useRef(cards.length);
 
@@ -20,7 +27,7 @@ export function ObjectList({ cards, errors, linkNameOnly, showObjectName, onChan
   useEffect(() => {
     if (cards.length > prevCountRef.current) {
       const lastCard = cards[cards.length - 1];
-      setExpandedId(lastCard.id);
+      if (lastCard) setExpandedId(lastCard.id);
     }
     prevCountRef.current = cards.length;
   }, [cards.length]);
@@ -28,17 +35,13 @@ export function ObjectList({ cards, errors, linkNameOnly, showObjectName, onChan
   // バリデーションエラー時に該当行を自動展開
   useEffect(() => {
     if (errors.length > 0) {
-      const firstErrorCardId = errors[0].cardId;
-      setExpandedId(firstErrorCardId);
+      const firstError = errors[0];
+      if (firstError) setExpandedId(firstError.cardId);
     }
   }, [errors]);
 
   if (cards.length === 0) {
-    return (
-      <div class="object-list-empty">
-        {t("options_list_empty")}
-      </div>
-    );
+    return <div class="object-list-empty">{t('options_list_empty')}</div>;
   }
 
   const errorsForCard = (id: string) => errors.filter((e) => e.cardId === id);

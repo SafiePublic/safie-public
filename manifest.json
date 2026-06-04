@@ -13,11 +13,7 @@
   "background": {
     "service_worker": "background.js"
   },
-  "permissions": [
-    "clipboardWrite",
-    "storage",
-    "declarativeContent"
-  ],
+  "permissions": ["clipboardWrite", "storage", "declarativeContent"],
   "options_page": "options.html",
   "content_scripts": [
     {

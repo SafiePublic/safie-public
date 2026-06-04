@@ -9,15 +9,20 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "node scripts/build.mjs --watch",
+    "lint": "biome check",
+    "lint:fix": "biome check --write",
+    "format": "biome format --write",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "package": "npm run build && rm -f sf-record-linker.zip && cd dist && zip -r ../sf-record-linker.zip . && cd .. && echo 'Created sf-record-linker.zip'"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.16",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/preact": "^3.2.4",
     "@types/chrome": "^0.0.300",
+    "@types/node": "^25.9.1",
     "esbuild": "^0.25.0",
     "jsdom": "^28.1.0",
     "preact": "^10.28.4",
