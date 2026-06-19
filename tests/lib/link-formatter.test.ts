@@ -220,6 +220,97 @@ describe('formatTemplateLink', () => {
   });
 });
 
+describe('formatTemplateLink — ${link:項目名} 明示リンク（#8）', () => {
+  const url = 'https://example.com';
+
+  it('${link:商品コード} のみをリンク化し、名前はプレーンにする（linkNameOnly=true でも明示リンク優先）', () => {
+    const result = formatTemplateLink(
+      'Product A',
+      url,
+      '${name} - ${link:商品コード}',
+      { 商品コード: 'ABC-001' },
+      '商品',
+      true,
+    );
+    expect(result.html).toBe('Product A - <a href="https://example.com">ABC-001</a>');
+    expect(result.plain).toBe('Product A - ABC-001');
+  });
+
+  it('名前 + 変数1 + 変数2 のうち、変数1だけにリンクを付けられる', () => {
+    const result = formatTemplateLink(
+      'Product A',
+      url,
+      '${name} / ${link:商品コード} / ${カテゴリ}',
+      { 商品コード: 'ABC-001', カテゴリ: 'Electronics' },
+      '商品',
+      true,
+    );
+    expect(result.html).toBe('Product A / <a href="https://example.com">ABC-001</a> / Electronics');
+    expect(result.plain).toBe('Product A / ABC-001 / Electronics');
+  });
+
+  it('複数の ${link:...} をすべてリンク化する', () => {
+    const result = formatTemplateLink(
+      'Product A',
+      url,
+      '${link:name} - ${link:商品コード}',
+      { 商品コード: 'ABC-001' },
+      '商品',
+      true,
+    );
+    expect(result.html).toBe(
+      '<a href="https://example.com">Product A</a> - <a href="https://example.com">ABC-001</a>',
+    );
+    expect(result.plain).toBe('Product A - ABC-001');
+  });
+
+  it('${link:name} でレコード名を、${link:object} でオブジェクト名をリンク化できる', () => {
+    const result = formatTemplateLink('Product A', url, '${link:object}: ${link:name}', {}, '商品');
+    expect(result.html).toBe(
+      '<a href="https://example.com">商品</a>: <a href="https://example.com">Product A</a>',
+    );
+    expect(result.plain).toBe('商品: Product A');
+  });
+
+  it('リンク値・プレーン部分・URL すべてを HTML エスケープする', () => {
+    const result = formatTemplateLink(
+      'R&D <Team>',
+      'https://example.com/?a=1&b=2',
+      '${name} = ${link:メモ}',
+      { メモ: '<script>"x"</script>' },
+      '商品',
+      true,
+    );
+    expect(result.html).toBe(
+      'R&amp;D &lt;Team&gt; = <a href="https://example.com/?a=1&amp;b=2">&lt;script&gt;&quot;x&quot;&lt;/script&gt;</a>',
+    );
+    expect(result.plain).toBe('R&D <Team> = <script>"x"</script>');
+  });
+
+  it('存在しない項目の ${link:...} は空のリンクに展開される', () => {
+    const result = formatTemplateLink('Rec', url, '${name} - ${link:unknown}', {}, 'Obj');
+    expect(result.html).toBe('Rec - <a href="https://example.com"></a>');
+    expect(result.plain).toBe('Rec - ');
+  });
+});
+
+describe('extractFieldLabels — ${link:...} 対応（#8）', () => {
+  it('${link:商談番号} から項目ラベルを抽出する', () => {
+    expect(extractFieldLabels('${name} - ${link:商談番号}')).toEqual(['商談番号']);
+  });
+
+  it('${link:name} / ${link:object} はビルトイン扱いで除外する', () => {
+    expect(extractFieldLabels('${link:name} ${link:object}')).toEqual([]);
+  });
+
+  it('link: 付きと無しが混在しても重複なく抽出する', () => {
+    expect(extractFieldLabels('${商談番号} / ${link:商談番号} / ${金額}')).toEqual([
+      '商談番号',
+      '金額',
+    ]);
+  });
+});
+
 describe('prefixObjectName', () => {
   const link = { html: '<a href="https://example.com">Record</a>', plain: 'Record' };
 

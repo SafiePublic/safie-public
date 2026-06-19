@@ -84,6 +84,14 @@ export function ObjectForm({
               </code>{' '}
               : {t('options_form_help_fieldVar')}
             </li>
+            <li>
+              <code>
+                {'${link:'}
+                {t('options_form_help_fieldName')}
+                {'}'}
+              </code>{' '}
+              : {t('options_form_help_linkVar')}
+            </li>
           </ul>
         </div>
       </div>

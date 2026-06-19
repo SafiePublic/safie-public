@@ -42,16 +42,45 @@ export function formatExtendedLink(
 
 const BUILTIN_VARS = new Set(['name', 'object']);
 
+// ${name} / ${商談番号} / ${link:商談番号} いずれにもマッチ。
+// グループ1 = "link:"（任意）、グループ2 = 変数キー。
+const TEMPLATE_VAR_RE = /\$\{(link:)?([^}]+)\}/g;
+
 export function extractFieldLabels(format: string): string[] {
-  const matches = format.matchAll(/\$\{([^}]+)\}/g);
+  const matches = format.matchAll(TEMPLATE_VAR_RE);
   const labels = new Set<string>();
   for (const m of matches) {
-    const label = m[1];
+    // m[2] は link: 接頭辞を除いた変数キー（${link:商談番号} → 商談番号）。
+    const label = m[2];
     if (label && !BUILTIN_VARS.has(label)) {
       labels.add(label);
     }
   }
   return [...labels];
+}
+
+// テンプレート内のトークン。リテラル文字列か、変数参照（リンク化指定の有無付き）。
+type TemplateToken =
+  | { type: 'literal'; text: string }
+  | { type: 'var'; isLink: boolean; key: string };
+
+function tokenizeTemplate(format: string): TemplateToken[] {
+  const tokens: TemplateToken[] = [];
+  const re = new RegExp(TEMPLATE_VAR_RE.source, 'g');
+  let lastIndex = 0;
+  let m: RegExpExecArray | null = re.exec(format);
+  while (m !== null) {
+    if (m.index > lastIndex) {
+      tokens.push({ type: 'literal', text: format.slice(lastIndex, m.index) });
+    }
+    tokens.push({ type: 'var', isLink: Boolean(m[1]), key: m[2] ?? '' });
+    lastIndex = m.index + m[0].length;
+    m = re.exec(format);
+  }
+  if (lastIndex < format.length) {
+    tokens.push({ type: 'literal', text: format.slice(lastIndex) });
+  }
+  return tokens;
 }
 
 export function formatTemplateLink(
@@ -62,11 +91,29 @@ export function formatTemplateLink(
   objectLabel: string,
   linkNameOnly = true,
 ): LinkResult {
-  const displayText = format.replace(/\$\{([^}]+)\}/g, (_, key: string) => {
+  const resolveVar = (key: string): string => {
     if (key === 'name') return recordName;
     if (key === 'object') return objectLabel;
     return fieldValues[key] ?? '';
-  });
+  };
+
+  const displayText = format.replace(TEMPLATE_VAR_RE, (_, _link: string, key: string) =>
+    resolveVar(key),
+  );
+
+  // format 内に ${link:...} が1つでもあれば「明示リンク」モード。
+  // 指定された変数のみをリンク化し、linkNameOnly は無視する（後方互換: 旧 format は下の従来分岐へ）。
+  const hasExplicitLink = /\$\{link:[^}]+\}/.test(format);
+  if (hasExplicitLink) {
+    const html = tokenizeTemplate(format)
+      .map((tok) => {
+        if (tok.type === 'literal') return escapeHtml(tok.text);
+        const value = escapeHtml(resolveVar(tok.key));
+        return tok.isLink ? `<a href="${escapeHtml(url)}">${value}</a>` : value;
+      })
+      .join('');
+    return { html, plain: displayText };
+  }
 
   if (linkNameOnly && format.includes('${name}')) {
     // ${name} 以外の変数を先に展開
