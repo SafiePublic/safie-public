@@ -7,25 +7,10 @@ import {
   formatTemplateLink,
   prefixObjectName,
 } from './lib/link-formatter';
+import { findRecordName } from './lib/record-name';
 import { findReportName } from './lib/report-name';
 import type { GlobalSettings, ObjectSettings } from './lib/types';
 import { DEFAULT_GLOBAL_SETTINGS } from './lib/types';
-
-function findRecordNameElement(startEl: Element | Document): HTMLElement | null {
-  const rh2 = querySelectorInShadowDOM(startEl, 'records-highlights2');
-  if (!rh2) return null;
-
-  for (const selector of [
-    'lightning-formatted-text[slot="primaryField"]',
-    'lightning-formatted-text',
-  ]) {
-    const el = rh2.querySelector<HTMLElement>(selector);
-    if (el?.innerText?.trim()) {
-      return el;
-    }
-  }
-  return null;
-}
 
 function getObjectLabel(startEl: Element | Document): string | null {
   const el =
@@ -205,10 +190,8 @@ function getRecordLink(): { success: boolean; html?: string; plain?: string; toa
 
   const startEl = findActiveRecordPage();
 
-  const nameEl = findRecordNameElement(startEl);
-  if (!nameEl) return { success: false };
-
-  const recordName = nameEl.innerText.trim();
+  const recordName = findRecordName(startEl, querySelectorInShadowDOM);
+  if (!recordName) return { success: false };
   const url = window.location.href;
   const link = buildLink(recordName, url, startEl);
   const toasts = cachedGlobalSettings.includeToast ? detectToastMessages() : [];
