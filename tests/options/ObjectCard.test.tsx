@@ -133,7 +133,7 @@ describe('ObjectCard', () => {
     );
     const u = document.querySelector('.preview-text u');
     expect(u?.textContent).toBe('レコード名');
-    expect(document.querySelector('.preview-text')?.textContent).toBe('レコード名([商品コード])');
+    expect(document.querySelector('.preview-text')?.textContent).toBe('レコード名(商品コード)');
   });
 
   it('shows custom mode preview with object', () => {
@@ -215,6 +215,6 @@ describe('ObjectCard', () => {
         onRemove={vi.fn()}
       />,
     );
-    expect(document.querySelector('.preview-text')?.textContent).toBe('レコード名([商品コード])');
+    expect(document.querySelector('.preview-text')?.textContent).toBe('レコード名(商品コード)');
   });
 });

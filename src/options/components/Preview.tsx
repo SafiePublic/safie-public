@@ -16,11 +16,11 @@ function computePreviewSegments(
   const objectName = card.objectName.trim() || t('options_preview_objectName');
   const recordName = t('options_preview_recordName');
 
-  // プレビューでは項目値をラベル名のプレースホルダ [項目名] で代用する。
+  // プレビューでは項目値を項目ラベル名そのままで代用する（${link:商談番号} → 商談番号）。
   const resolveVar = (key: string): string => {
     if (key === 'name') return recordName;
     if (key === 'object') return objectName;
-    return `[${key}]`;
+    return key;
   };
 
   if (card.mode === 'custom') {
@@ -41,7 +41,7 @@ function computePreviewSegments(
     const expanded = format.replace(/\$\{([^}]+)\}/g, (match, key: string) => {
       if (key === 'name') return match; // ${name} はそのまま
       if (key === 'object') return objectName;
-      return `[${key}]`;
+      return key;
     });
 
     if (linkNameOnly && expanded.includes('${name}')) {

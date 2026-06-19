@@ -19,7 +19,7 @@ function makeCard(overrides: Partial<CardState> = {}): CardState {
   };
 }
 
-// プレビューでは項目値はラベル名のプレースホルダ [項目名] で表示される。
+// プレビューでは項目値を項目ラベル名そのままで表示する（${link:商品コード} → 商品コード）。
 // 下線（<u>）部分がリンク、<span> 部分がプレーン。
 describe('Preview — ${link:項目名} 明示リンク（#8）', () => {
   it('${link:商品コード} だけが下線（リンク）になり、レコード名はプレーンになる', () => {
@@ -32,8 +32,8 @@ describe('Preview — ${link:項目名} 明示リンク（#8）', () => {
     );
     const linked = document.querySelectorAll('.preview-text u');
     expect(linked.length).toBe(1);
-    expect(linked[0].textContent).toBe('[商品コード]');
-    expect(document.querySelector('.preview-text')?.textContent).toBe('レコード名 - [商品コード]');
+    expect(linked[0].textContent).toBe('商品コード');
+    expect(document.querySelector('.preview-text')?.textContent).toBe('レコード名 - 商品コード');
   });
 
   it('複数の ${link:...} がそれぞれ下線になる', () => {
@@ -47,7 +47,7 @@ describe('Preview — ${link:項目名} 明示リンク（#8）', () => {
     const linked = document.querySelectorAll('.preview-text u');
     expect(linked.length).toBe(2);
     expect(linked[0].textContent).toBe('レコード名');
-    expect(linked[1].textContent).toBe('[商品コード]');
+    expect(linked[1].textContent).toBe('商品コード');
   });
 
   it('${link:} が無い従来 format は linkNameOnly に従いレコード名のみ下線', () => {
@@ -61,6 +61,6 @@ describe('Preview — ${link:項目名} 明示リンク（#8）', () => {
     const linked = document.querySelectorAll('.preview-text u');
     expect(linked.length).toBe(1);
     expect(linked[0].textContent).toBe('レコード名');
-    expect(document.querySelector('.preview-text')?.textContent).toBe('レコード名 - [商品コード]');
+    expect(document.querySelector('.preview-text')?.textContent).toBe('レコード名 - 商品コード');
   });
 });
