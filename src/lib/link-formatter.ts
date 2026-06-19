@@ -109,7 +109,8 @@ export function formatTemplateLink(
       .map((tok) => {
         if (tok.type === 'literal') return escapeHtml(tok.text);
         const value = escapeHtml(resolveVar(tok.key));
-        return tok.isLink ? `<a href="${escapeHtml(url)}">${value}</a>` : value;
+        // 値が空のときは空アンカー <a></a> を出さず、プレーン（空文字）にする。
+        return tok.isLink && value !== '' ? `<a href="${escapeHtml(url)}">${value}</a>` : value;
       })
       .join('');
     return { html, plain: displayText };

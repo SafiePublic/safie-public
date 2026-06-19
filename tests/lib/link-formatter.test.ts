@@ -287,10 +287,35 @@ describe('formatTemplateLink — ${link:項目名} 明示リンク（#8）', () 
     expect(result.plain).toBe('R&D <Team> = <script>"x"</script>');
   });
 
-  it('存在しない項目の ${link:...} は空のリンクに展開される', () => {
+  it('存在しない項目の ${link:...} は空アンカーを出さずプレーン（空文字）にする', () => {
     const result = formatTemplateLink('Rec', url, '${name} - ${link:unknown}', {}, 'Obj');
-    expect(result.html).toBe('Rec - <a href="https://example.com"></a>');
+    expect(result.html).toBe('Rec - ');
     expect(result.plain).toBe('Rec - ');
+  });
+
+  it('明示リンクモードでは linkNameOnly=false でも ${link:} 指定のみリンク化する', () => {
+    const result = formatTemplateLink(
+      'Rec',
+      url,
+      '${name} ${link:コード}',
+      { コード: 'X-1' },
+      'Obj',
+      false,
+    );
+    expect(result.html).toBe('Rec <a href="https://example.com">X-1</a>');
+    expect(result.plain).toBe('Rec X-1');
+  });
+
+  it('${link:商品コード} のみ（他に変数なし）でも正しくリンク化する', () => {
+    const result = formatTemplateLink(
+      'Rec',
+      url,
+      '${link:商品コード}',
+      { 商品コード: 'ABC' },
+      'Obj',
+    );
+    expect(result.html).toBe('<a href="https://example.com">ABC</a>');
+    expect(result.plain).toBe('ABC');
   });
 });
 
