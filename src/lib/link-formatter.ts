@@ -60,11 +60,18 @@ export function extractFieldLabels(format: string): string[] {
 }
 
 // テンプレート内のトークン。リテラル文字列か、変数参照（リンク化指定の有無付き）。
-type TemplateToken =
+// options のプレビュー（Preview.tsx）でも同じ解釈を使うため export する。
+export type TemplateToken =
   | { type: 'literal'; text: string }
   | { type: 'var'; isLink: boolean; key: string };
 
-function tokenizeTemplate(format: string): TemplateToken[] {
+// format 内に ${link:...} が1つでもあれば「明示リンク」モード。
+// formatTemplateLink とプレビューで判定を共有する（重複・ドリフト防止）。
+export function hasExplicitLink(format: string): boolean {
+  return /\$\{link:[^}]+\}/.test(format);
+}
+
+export function tokenizeTemplate(format: string): TemplateToken[] {
   const tokens: TemplateToken[] = [];
   const re = new RegExp(TEMPLATE_VAR_RE.source, 'g');
   let lastIndex = 0;
@@ -101,10 +108,8 @@ export function formatTemplateLink(
     resolveVar(key),
   );
 
-  // format 内に ${link:...} が1つでもあれば「明示リンク」モード。
   // 指定された変数のみをリンク化し、linkNameOnly は無視する（後方互換: 旧 format は下の従来分岐へ）。
-  const hasExplicitLink = /\$\{link:[^}]+\}/.test(format);
-  if (hasExplicitLink) {
+  if (hasExplicitLink(format)) {
     const html = tokenizeTemplate(format)
       .map((tok) => {
         if (tok.type === 'literal') return escapeHtml(tok.text);

@@ -1,4 +1,5 @@
 import { t } from '../../lib/i18n';
+import { hasExplicitLink, tokenizeTemplate } from '../../lib/link-formatter';
 import type { CardState } from '../../lib/types';
 
 // プレビュー表示の最小単位。linked=true の部分が下線（リンク）で描画される。
@@ -26,25 +27,14 @@ function computePreviewSegments(
     const format = card.format.trim();
     if (!format) return [{ text: recordName, linked: true }];
 
-    // ${link:...} が1つでもあれば明示リンクモード（content.ts / formatTemplateLink と同じ判定）。
-    const hasExplicitLink = /\$\{link:[^}]+\}/.test(format);
-    if (hasExplicitLink) {
-      const segments: PreviewSegment[] = [];
-      const re = /\$\{(link:)?([^}]+)\}/g;
-      let lastIndex = 0;
-      let m: RegExpExecArray | null = re.exec(format);
-      while (m !== null) {
-        if (m.index > lastIndex) {
-          segments.push({ text: format.slice(lastIndex, m.index), linked: false });
-        }
-        segments.push({ text: resolveVar(m[2] ?? ''), linked: Boolean(m[1]) });
-        lastIndex = m.index + m[0].length;
-        m = re.exec(format);
-      }
-      if (lastIndex < format.length) {
-        segments.push({ text: format.slice(lastIndex), linked: false });
-      }
-      return segments;
+    // ${link:...} が1つでもあれば明示リンクモード。トークナイザと判定は
+    // link-formatter から共有し、実出力（formatTemplateLink）とのドリフトを防ぐ。
+    if (hasExplicitLink(format)) {
+      return tokenizeTemplate(format).map((tok) =>
+        tok.type === 'literal'
+          ? { text: tok.text, linked: false }
+          : { text: resolveVar(tok.key), linked: tok.isLink },
+      );
     }
 
     // 従来挙動（${link:} なし）
