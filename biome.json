@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!docs", "!**/*.zip", "!package-lock.json"]
+    "includes": ["**", "!docs", "!**/*.zip", "!package-lock.json", "!!**/.claude/worktrees"]
   },
   "formatter": {
     "enabled": true,
