@@ -101,6 +101,9 @@
   "options_form_help_fieldName": {
     "message": "Field Label"
   },
+  "options_form_help_linkVar": {
+    "message": "make only the specified variable(s) a hyperlink (multiple allowed; name/object too)"
+  },
 
   "options_segment_simple": {
     "message": "Simple format"

@@ -1,35 +1,61 @@
 import { t } from '../../lib/i18n';
+import { hasExplicitLink, tokenizeTemplate } from '../../lib/link-formatter';
 import type { CardState } from '../../lib/types';
 
-function computePreviewParts(
+// プレビュー表示の最小単位。linked=true の部分が下線（リンク）で描画される。
+interface PreviewSegment {
+  text: string;
+  linked: boolean;
+}
+
+function computePreviewSegments(
   card: CardState,
   linkNameOnly: boolean,
   showObjectName: boolean,
-): { before: string; linked: string; after: string } {
+): PreviewSegment[] {
   const objectName = card.objectName.trim() || t('options_preview_objectName');
+  const recordName = t('options_preview_recordName');
+
+  // プレビューでは項目値を項目ラベル名そのままで代用する（${link:商談番号} → 商談番号）。
+  const resolveVar = (key: string): string => {
+    if (key === 'name') return recordName;
+    if (key === 'object') return objectName;
+    return key;
+  };
 
   if (card.mode === 'custom') {
     const format = card.format.trim();
-    if (!format) return { before: '', linked: t('options_preview_recordName'), after: '' };
+    if (!format) return [{ text: recordName, linked: true }];
 
+    // ${link:...} が1つでもあれば明示リンクモード。トークナイザと判定は
+    // link-formatter から共有し、実出力（formatTemplateLink）とのドリフトを防ぐ。
+    if (hasExplicitLink(format)) {
+      return tokenizeTemplate(format).map((tok) =>
+        tok.type === 'literal'
+          ? { text: tok.text, linked: false }
+          : { text: resolveVar(tok.key), linked: tok.isLink },
+      );
+    }
+
+    // 従来挙動（${link:} なし）
     const expanded = format.replace(/\$\{([^}]+)\}/g, (match, key: string) => {
       if (key === 'name') return match; // ${name} はそのまま
       if (key === 'object') return objectName;
-      return `[${key}]`;
+      return key;
     });
 
     if (linkNameOnly && expanded.includes('${name}')) {
       const idx = expanded.indexOf('${name}');
-      return {
-        before: expanded.slice(0, idx),
-        linked: t('options_preview_recordName'),
-        after: expanded.slice(idx + '${name}'.length),
-      };
+      return [
+        { text: expanded.slice(0, idx), linked: false },
+        { text: recordName, linked: true },
+        { text: expanded.slice(idx + '${name}'.length), linked: false },
+      ];
     }
 
     // linkNameOnly=false or ${name} なし → 全体
-    const full = expanded.replace(/\$\{name\}/g, t('options_preview_recordName'));
-    return { before: '', linked: full, after: '' };
+    const full = expanded.replace(/\$\{name\}/g, recordName);
+    return [{ text: full, linked: true }];
   }
 
   // simple mode
@@ -39,9 +65,13 @@ function computePreviewParts(
   const prefix = showObjectName ? `${objectName}: ` : '';
 
   if (linkNameOnly) {
-    return { before: prefix, linked: t('options_preview_recordName'), after: suffix };
+    return [
+      { text: prefix, linked: false },
+      { text: recordName, linked: true },
+      { text: suffix, linked: false },
+    ];
   }
-  return { before: '', linked: `${prefix}${t('options_preview_recordName')}${suffix}`, after: '' };
+  return [{ text: `${prefix}${recordName}${suffix}`, linked: true }];
 }
 
 interface GlobalPreviewProps {
@@ -130,14 +160,16 @@ interface PreviewProps {
 }
 
 export function Preview({ card, linkNameOnly, showObjectName }: PreviewProps) {
-  const { before, linked, after } = computePreviewParts(card, linkNameOnly, showObjectName);
+  const segments = computePreviewSegments(card, linkNameOnly, showObjectName);
   return (
     <div class="preview">
       <div class="preview-heading">{t('options_preview_heading')}</div>
       <div class="preview-text">
-        {before && <span>{before}</span>}
-        <u>{linked}</u>
-        {after && <span>{after}</span>}
+        {segments.map((seg, i) => {
+          if (seg.text === '') return null;
+          const key = `${i}:${seg.text}`;
+          return seg.linked ? <u key={key}>{seg.text}</u> : <span key={key}>{seg.text}</span>;
+        })}
       </div>
     </div>
   );
